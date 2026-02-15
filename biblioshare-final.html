@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiblioShare - Empréstimo de Livros</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #e94560;
+            --accent-light: #ff6b6b;
+            --bg: #faf9f6;
+            --card-bg: #ffffff;
+            --text: #2d2d2d;
+            --text-light: #666;
+            --border: #e0e0e0;
+            --success: #06d6a0;
+            --warning: #ffd166;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #faf9f6 0%, #f5f3ed 100%);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .background-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            pointer-events: none;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 35px, var(--primary) 35px, var(--primary) 36px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, var(--primary) 35px, var(--primary) 36px);
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 1.5rem 0;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -1px;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            color: var(--accent);
+            transform: scale(1.05);
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg);
+            color: var(--accent);
+        }
+
+        .nav-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 3rem 1rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--card-bg);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.15);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin: 3rem 0 2rem;
+            border-bottom: 2px solid var(--border);
+            animation: slideIn 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .tab:hover {
+            color: var(--accent);
+        }
+
+        .tab.active {
+            color: var(--accent);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--accent);
+            animation: expand 0.3s ease-out;
+        }
+
+        @keyframes expand {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0 4rem;
+            animation: fadeIn 0.6s ease-out 0.4s both;
+        }
+
+        .book-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 320px;
+            background: linear-gradient(135deg, var(--secondary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 600;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .book-cover.has-image {
+            background-size: cover;
+            background-position: center;
+        }
+
+        .book-cover.has-image span {
+            display: none;
+        }
+
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.1) 75%);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+
+        .book-cover span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .book-info {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .book-author {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .book-status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .status-available {
+            background: rgba(6, 214, 160, 0.15);
+            color: var(--success);
+        }
+
+        .status-borrowed {
+            background: rgba(233, 69, 96, 0.15);
+            color: var(--accent);
+        }
+
+        .book-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-light);
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--text-light);
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--bg);
+            color: var(--accent);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+            animation: fadeIn 0.6s ease-out 0.3s both;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .stat-number {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .borrowed-item {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .borrowed-item:hover {
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .borrowed-info h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .borrowed-info p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .due-date {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .due-soon {
+            background: rgba(255, 209, 102, 0.2);
+            color: var(--warning);
+        }
+
+        .due-ok {
+            background: rgba(6, 214, 160, 0.2);
+            color: var(--success);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 1.5rem;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .modal-content {
+                padding: 2rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-pattern"></div>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            // Carregar dados salvos ou usar dados iniciais
+            const initialBooks = [
+                {
+                    id: 1,
+                    title: 'Cem Anos de Solidão',
+                    author: 'Gabriel García Márquez',
+                    status: 'available',
+                    description: 'Obra-prima do realismo mágico latino-americano',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1654371463i/18144590.jpg'
+                },
+                {
+                    id: 2,
+                    title: 'Dom Casmurro',
+                    author: 'Machado de Assis',
+                    status: 'borrowed',
+                    borrowedBy: 'Maria Silva',
+                    dueDate: '2026-02-20',
+                    description: 'Clássico da literatura brasileira',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1388188959i/3181534.jpg'
+                },
+                {
+                    id: 3,
+                    title: '1984',
+                    author: 'George Orwell',
+                    status: 'available',
+                    description: 'Distopia sobre totalitarismo e vigilância',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1657781256i/61439040.jpg'
+                },
+                {
+                    id: 4,
+                    title: 'O Pequeno Príncipe',
+                    author: 'Antoine de Saint-Exupéry',
+                    status: 'available',
+                    description: 'Fábula poética sobre amizade e humanidade',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1367545443i/157993.jpg'
+                },
+                {
+                    id: 5,
+                    title: 'A Metamorfose',
+                    author: 'Franz Kafka',
+                    status: 'borrowed',
+                    borrowedBy: 'João Santos',
+                    dueDate: '2026-02-15',
+                    description: 'Narrativa sobre alienação e transformação',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1359061917i/485894.jpg'
+                },
+                {
+                    id: 6,
+                    title: 'Cem Poemas',
+                    author: 'Pablo Neruda',
+                    status: 'available',
+                    description: 'Coletânea de poesia apaixonada',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1347652902i/6751977.jpg'
+                },
+                {
+                    id: 7,
+                    title: 'O Senhor dos Anéis',
+                    author: 'J.R.R. Tolkien',
+                    status: 'available',
+                    description: 'Épica fantasia sobre a luta contra o mal',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1566425108i/33.jpg'
+                },
+                {
+                    id: 8,
+                    title: 'Orgulho e Preconceito',
+                    author: 'Jane Austen',
+                    status: 'available',
+                    description: 'Romance clássico sobre amor e sociedade',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1320399351i/1885.jpg'
+                },
+                {
+                    id: 9,
+                    title: 'O Alquimista',
+                    author: 'Paulo Coelho',
+                    status: 'borrowed',
+                    borrowedBy: 'Ana Costa',
+                    dueDate: '2026-02-18',
+                    description: 'Jornada de autodescoberta e realização',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1654371463i/18144590.jpg'
+                },
+                {
+                    id: 10,
+                    title: 'Harry Potter e a Pedra Filosofal',
+                    author: 'J.K. Rowling',
+                    status: 'available',
+                    description: 'O início da saga mágica mais famosa',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1598823299i/42844155.jpg'
+                },
+                {
+                    id: 11,
+                    title: 'O Cortiço',
+                    author: 'Aluísio Azevedo',
+                    status: 'available',
+                    description: 'Retrato realista da sociedade carioca',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1348027219i/3181536.jpg'
+                },
+                {
+                    id: 12,
+                    title: 'A Revolução dos Bichos',
+                    author: 'George Orwell',
+                    status: 'available',
+                    description: 'Fábula política sobre poder e corrupção',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1424037542i/7613.jpg'
+                },
+                {
+                    id: 13,
+                    title: 'Grande Sertão: Veredas',
+                    author: 'Guimarães Rosa',
+                    status: 'borrowed',
+                    borrowedBy: 'Carlos Mendes',
+                    dueDate: '2026-02-25',
+                    description: 'Obra-prima da literatura brasileira',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1320427573i/218467.jpg'
+                },
+                {
+                    id: 14,
+                    title: 'O Conde de Monte Cristo',
+                    author: 'Alexandre Dumas',
+                    status: 'available',
+                    description: 'Aventura épica de vingança e redenção',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1611834134i/7126.jpg'
+                },
+                {
+                    id: 15,
+                    title: 'Memórias Póstumas de Brás Cubas',
+                    author: 'Machado de Assis',
+                    status: 'available',
+                    description: 'Narrativa inovadora e irônica',
+                    cover: 'https://images-na.ssl-images-amazon.com/images/S/compressed.photo.goodreads.com/books/1388263640i/54139.jpg'
+                }
+            ];
+
+            const initialBorrowedBooks = [
+                {
+                    id: 2,
+                    title: 'Dom Casmurro',
+                    author: 'Machado de Assis',
+                    borrowedBy: 'Maria Silva',
+                    dueDate: '2026-02-20'
+                },
+                {
+                    id: 5,
+                    title: 'A Metamorfose',
+                    author: 'Franz Kafka',
+                    borrowedBy: 'João Santos',
+                    dueDate: '2026-02-15'
+                },
+                {
+                    id: 9,
+                    title: 'O Alquimista',
+                    author: 'Paulo Coelho',
+                    borrowedBy: 'Ana Costa',
+                    dueDate: '2026-02-18'
+                },
+                {
+                    id: 13,
+                    title: 'Grande Sertão: Veredas',
+                    author: 'Guimarães Rosa',
+                    borrowedBy: 'Carlos Mendes',
+                    dueDate: '2026-02-25'
+                }
+            ];
+
+            const [view, setView] = useState('catalog');
+            const [activeTab, setActiveTab] = useState('all');
+            const [showModal, setShowModal] = useState(false);
+            const [modalType, setModalType] = useState('');
+            const [searchTerm, setSearchTerm] = useState('');
+            
+            // Carregar dados do localStorage ou usar dados iniciais
+            const [books, setBooks] = useState(() => {
+                const savedBooks = localStorage.getItem('biblioshare-books');
+                return savedBooks ? JSON.parse(savedBooks) : initialBooks;
+            });
+
+            const [borrowedBooks, setBorrowedBooks] = useState(() => {
+                const savedBorrowed = localStorage.getItem('biblioshare-borrowed');
+                return savedBorrowed ? JSON.parse(savedBorrowed) : initialBorrowedBooks;
+            });
+
+            // Salvar no localStorage sempre que books ou borrowedBooks mudarem
+            useEffect(() => {
+                localStorage.setItem('biblioshare-books', JSON.stringify(books));
+            }, [books]);
+
+            useEffect(() => {
+                localStorage.setItem('biblioshare-borrowed', JSON.stringify(borrowedBooks));
+            }, [borrowedBooks]);
+
+            const [formData, setFormData] = useState({
+                title: '',
+                author: '',
+                description: '',
+                borrowerName: '',
+                dueDate: ''
+            });
+
+            const openModal = (type) => {
+                setModalType(type);
+                setShowModal(true);
+                setFormData({
+                    title: '',
+                    author: '',
+                    description: '',
+                    borrowerName: '',
+                    dueDate: ''
+                });
+            };
+
+            const closeModal = () => {
+                setShowModal(false);
+                setModalType('');
+            };
+
+            const handleInputChange = (e) => {
+                setFormData({
+                    ...formData,
+                    [e.target.name]: e.target.value
+                });
+            };
+
+            const handleAddBook = (e) => {
+                e.preventDefault();
+                const newBook = {
+                    id: books.length + 1,
+                    title: formData.title,
+                    author: formData.author,
+                    description: formData.description,
+                    status: 'available'
+                };
+                setBooks([...books, newBook]);
+                closeModal();
+            };
+
+            const handleBorrowBook = (book) => {
+                setFormData({ ...formData, title: book.title, author: book.author });
+                openModal('borrow');
+            };
+
+            const confirmBorrow = (e) => {
+                e.preventDefault();
+                const updatedBooks = books.map(book => 
+                    book.title === formData.title 
+                        ? { ...book, status: 'borrowed', borrowedBy: formData.borrowerName, dueDate: formData.dueDate }
+                        : book
+                );
+                setBooks(updatedBooks);
+
+                const borrowedBook = updatedBooks.find(b => b.title === formData.title);
+                setBorrowedBooks([...borrowedBooks, borrowedBook]);
+                closeModal();
+            };
+
+            const handleReturnBook = (bookId) => {
+                const updatedBooks = books.map(book => 
+                    book.id === bookId 
+                        ? { ...book, status: 'available', borrowedBy: undefined, dueDate: undefined }
+                        : book
+                );
+                setBooks(updatedBooks);
+                setBorrowedBooks(borrowedBooks.filter(b => b.id !== bookId));
+            };
+
+            const filteredBooks = books.filter(book => {
+                const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                     book.author.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesTab = activeTab === 'all' || book.status === activeTab;
+                return matchesSearch && matchesTab;
+            });
+
+            const stats = {
+                total: books.length,
+                available: books.filter(b => b.status === 'available').length,
+                borrowed: books.filter(b => b.status === 'borrowed').length
+            };
+
+            const getDaysUntilDue = (dueDate) => {
+                const today = new Date();
+                const due = new Date(dueDate);
+                const diffTime = due - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays;
+            };
+
+            return (
+                <>
+                    <header>
+                        <div className="container">
+                            <div className="header-content">
+                                <div 
+                                    className="logo" 
+                                    onClick={() => {
+                                        setView('catalog');
+                                        setActiveTab('all');
+                                        setSearchTerm('');
+                                    }}
+                                    style={{ cursor: 'pointer' }}
+                                >
+                                    Biblio<span>Share</span>
+                                </div>
+                                <nav>
+                                    <button 
+                                        className={`nav-btn ${view === 'catalog' ? 'active' : ''}`}
+                                        onClick={() => setView('catalog')}
+                                    >
+                                        Catálogo
+                                    </button>
+                                    <button 
+                                        className={`nav-btn ${view === 'borrowed' ? 'active' : ''}`}
+                                        onClick={() => setView('borrowed')}
+                                    >
+                                        Emprestados
+                                    </button>
+                                    <button 
+                                        className="nav-btn"
+                                        onClick={() => openModal('add')}
+                                    >
+                                        + Adicionar Livro
+                                    </button>
+                                </nav>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="container">
+                        {view === 'catalog' && (
+                            <>
+                                <section className="hero">
+                                    <h1>Descubra seu próximo livro</h1>
+                                    <p>Explore nosso acervo e empreste livros incríveis para sua jornada literária</p>
+                                    <div className="search-bar">
+                                        <input 
+                                            type="text" 
+                                            className="search-input"
+                                            placeholder="Buscar por título ou autor..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                        <span className="search-icon">🔍</span>
+                                    </div>
+                                </section>
+
+                                <div className="stats">
+                                    <div className="stat-card">
+                                        <div className="stat-number">{stats.total}</div>
+                                        <div className="stat-label">Total de Livros</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-number">{stats.available}</div>
+                                        <div className="stat-label">Disponíveis</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-number">{stats.borrowed}</div>
+                                        <div className="stat-label">Emprestados</div>
+                                    </div>
+                                </div>
+
+                                <div className="tabs">
+                                    <button 
+                                        className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('all')}
+                                    >
+                                        Todos
+                                    </button>
+                                    <button 
+                                        className={`tab ${activeTab === 'available' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('available')}
+                                    >
+                                        Disponíveis
+                                    </button>
+                                    <button 
+                                        className={`tab ${activeTab === 'borrowed' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('borrowed')}
+                                    >
+                                        Emprestados
+                                    </button>
+                                </div>
+
+                                <div className="grid">
+                                    {filteredBooks.map(book => (
+                                        <div key={book.id} className="book-card">
+                                            <div 
+                                                className={`book-cover ${book.cover ? 'has-image' : ''}`}
+                                                style={book.cover ? { backgroundImage: `url(${book.cover})` } : {}}
+                                            >
+                                                <span>{book.title}</span>
+                                            </div>
+                                            <div className="book-info">
+                                                <h3 className="book-title">{book.title}</h3>
+                                                <p className="book-author">{book.author}</p>
+                                                <span className={`book-status ${book.status === 'available' ? 'status-available' : 'status-borrowed'}`}>
+                                                    {book.status === 'available' ? '✓ Disponível' : '✗ Emprestado'}
+                                                </span>
+                                                {book.status === 'borrowed' && (
+                                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-light)', marginTop: '0.5rem' }}>
+                                                        Para: {book.borrowedBy}
+                                                    </p>
+                                                )}
+                                                <div className="book-actions">
+                                                    {book.status === 'available' ? (
+                                                        <button 
+                                                            className="btn btn-primary"
+                                                            onClick={() => handleBorrowBook(book)}
+                                                        >
+                                                            Emprestar
+                                                        </button>
+                                                    ) : (
+                                                        <button 
+                                                            className="btn btn-secondary"
+                                                            onClick={() => handleReturnBook(book.id)}
+                                                        >
+                                                            Devolver
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {view === 'borrowed' && (
+                            <>
+                                <section className="hero">
+                                    <h1>Livros Emprestados</h1>
+                                    <p>Gerencie os empréstimos ativos e controle as devoluções</p>
+                                </section>
+
+                                <div style={{ marginTop: '3rem' }}>
+                                    {borrowedBooks.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-light)' }}>
+                                            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Nenhum livro emprestado</h3>
+                                            <p>Todos os livros estão disponíveis no momento</p>
+                                        </div>
+                                    ) : (
+                                        borrowedBooks.map(book => {
+                                            const daysLeft = getDaysUntilDue(book.dueDate);
+                                            return (
+                                                <div key={book.id} className="borrowed-item">
+                                                    <div className="borrowed-info">
+                                                        <h3>{book.title}</h3>
+                                                        <p>{book.author}</p>
+                                                        <p style={{ marginTop: '0.5rem' }}>
+                                                            <strong>Emprestado para:</strong> {book.borrowedBy}
+                                                        </p>
+                                                    </div>
+                                                    <div style={{ textAlign: 'right' }}>
+                                                        <div className={`due-date ${daysLeft <= 3 ? 'due-soon' : 'due-ok'}`}>
+                                                            {daysLeft > 0 ? `${daysLeft} dias restantes` : 'Atrasado'}
+                                                        </div>
+                                                        <button 
+                                                            className="btn btn-primary"
+                                                            style={{ marginTop: '1rem', minWidth: '120px' }}
+                                                            onClick={() => handleReturnBook(book.id)}
+                                                        >
+                                                            Devolver
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </main>
+
+                    {showModal && (
+                        <div className="modal" onClick={closeModal}>
+                            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">
+                                        {modalType === 'add' ? 'Adicionar Livro' : 'Emprestar Livro'}
+                                    </h2>
+                                    <button className="close-btn" onClick={closeModal}>×</button>
+                                </div>
+
+                                <form onSubmit={modalType === 'add' ? handleAddBook : confirmBorrow}>
+                                    {modalType === 'add' ? (
+                                        <>
+                                            <div className="form-group">
+                                                <label className="form-label">Título</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="form-input"
+                                                    name="title"
+                                                    value={formData.title}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Autor</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="form-input"
+                                                    name="author"
+                                                    value={formData.author}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Descrição</label>
+                                                <textarea 
+                                                    className="form-textarea"
+                                                    name="description"
+                                                    value={formData.description}
+                                                    onChange={handleInputChange}
+                                                ></textarea>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="form-group">
+                                                <label className="form-label">Livro</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="form-input"
+                                                    value={formData.title}
+                                                    disabled
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Nome do Solicitante</label>
+                                                <input 
+                                                    type="text" 
+                                                    className="form-input"
+                                                    name="borrowerName"
+                                                    value={formData.borrowerName}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="form-label">Data de Devolução</label>
+                                                <input 
+                                                    type="date" 
+                                                    className="form-input"
+                                                    name="dueDate"
+                                                    value={formData.dueDate}
+                                                    onChange={handleInputChange}
+                                                    required
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                                        {modalType === 'add' ? 'Adicionar' : 'Confirmar Empréstimo'}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
