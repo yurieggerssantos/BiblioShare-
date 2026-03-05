@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' blob:; connect-src * data: blob:; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:;">
     <title>BiblioShare - Biblioteca Virtual Completa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,8 +11,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -173,24 +173,140 @@
 <div id="root"></div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCbbCBP6gT19_7F3mkthPoBDWnnv98XU_Q",
-        authDomain: "biblioshare-61f23.firebaseapp.com",
-        projectId: "biblioshare-61f23",
-        storageBucket: "biblioshare-61f23.firebasestorage.app",
-        messagingSenderId: "298180748660",
-        appId: "1:298180748660:web:85c511358a9bf44c1cf821",
-        measurementId: "G-C681YGYC6S"
+    // Firebase REST API com proxy CORS para funcionar no Neocities
+    const FB_PROJECT = 'biblioshare-61f23';
+    const FB_KEY     = 'AIzaSyCbbCBP6gT19_7F3mkthPoBDWnnv98XU_Q';
+    const FB_BASE    = `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents`;
+    const PROXY      = 'https://corsproxy.io/?url=';
+
+    function proxify(url) {
+        return PROXY + encodeURIComponent(url);
+    }
+
+    // Converte valor JS → formato Firestore REST
+    function toFV(val) {
+        if (val === null || val === undefined) return { nullValue: null };
+        if (typeof val === 'boolean') return { booleanValue: val };
+        if (typeof val === 'number') return { integerValue: String(val) };
+        if (typeof val === 'object') {
+            const fields = {};
+            for (const k in val) fields[k] = toFV(val[k]);
+            return { mapValue: { fields } };
+        }
+        return { stringValue: String(val) };
+    }
+
+    // Converte valor Firestore REST → JS
+    function fromFV(fv) {
+        if (!fv) return null;
+        if ('stringValue'  in fv) return fv.stringValue;
+        if ('integerValue' in fv) return Number(fv.integerValue);
+        if ('booleanValue' in fv) return fv.booleanValue;
+        if ('nullValue'    in fv) return null;
+        if ('mapValue'     in fv) {
+            const obj = {};
+            for (const k in (fv.mapValue.fields || {}))
+                obj[k] = fromFV(fv.mapValue.fields[k]);
+            return obj;
+        }
+        if ('arrayValue'   in fv) return (fv.arrayValue.values || []).map(fromFV);
+        return null;
+    }
+
+    // Converte documento Firestore REST → objeto JS
+    function docToObj(doc) {
+        if (!doc || !doc.fields) return null;
+        const obj = {};
+        for (const k in doc.fields) obj[k] = fromFV(doc.fields[k]);
+        obj.id = (doc.name || '').split('/').pop();
+        return obj;
+    }
+
+    window.FBDB = {
+        // Busca todos os documentos de uma coleção
+        async getAll(collection) {
+            const r = await fetch(proxify(`${FB_BASE}/${collection}?key=${FB_KEY}`));
+            const data = await r.json();
+            if (!data.documents) return [];
+            return data.documents.map(docToObj);
+        },
+        // Cria um documento novo
+        async add(collection, obj) {
+            const fields = {};
+            for (const k in obj) if (k !== 'id') fields[k] = toFV(obj[k]);
+            const r = await fetch(proxify(`${FB_BASE}/${collection}?key=${FB_KEY}`), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fields })
+            });
+            const data = await r.json();
+            if (!r.ok) throw new Error(data.error?.message || 'Erro ao criar documento');
+            return (data.name || '').split('/').pop();
+        },
+        // Atualiza campos de um documento existente
+        async update(collection, docId, obj) {
+            const fields = {};
+            for (const k in obj) if (k !== 'id') fields[k] = toFV(obj[k]);
+            const fieldMask = Object.keys(obj).filter(k => k !== 'id').map(k => `updateMask.fieldPaths=${k}`).join('&');
+            const r = await fetch(proxify(`${FB_BASE}/${collection}/${docId}?key=${FB_KEY}&${fieldMask}`), {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fields })
+            });
+            if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || 'Erro ao atualizar'); }
+        },
+        // Escuta mudanças em tempo real (polling a cada 5s)
+        listenAll(collection, callback) {
+            let active = true;
+            const poll = async () => {
+                if (!active) return;
+                try { callback(await this.getAll(collection)); } catch {}
+                if (active) setTimeout(poll, 5000);
+            };
+            poll();
+            return () => { active = false; };
+        }
     };
-    firebase.initializeApp(firebaseConfig);
-    window.firebaseDB = firebase.firestore();
 </script>
 
 <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // Open Library: https://covers.openlibrary.org/b/isbn/{ISBN}-L.jpg
-    // Para livros sem ISBN na OL, usamos imagens do Google Books ou Amazon
+    // Capas via Google Books API (busca automática por título+autor)
+    const GB = (title, author) => {
+        const q = encodeURIComponent(`intitle:${title} inauthor:${author}`);
+        return `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=1&fields=items(volumeInfo(imageLinks))`;
+    };
+    // Componente que busca capa dinamicamente
+    function DynamicCover({ title, author, height = 380, className = '' }) {
+        const [src, setSrc] = React.useState(null);
+        const [failed, setFailed] = React.useState(false);
+        React.useEffect(() => {
+            const q = encodeURIComponent(`intitle:${title} inauthor:${author}`);
+            fetch(`https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&langRestrict=pt&fields=items(volumeInfo(imageLinks))`)
+                .then(r => r.json())
+                .then(data => {
+                    const items = data.items || [];
+                    for (const item of items) {
+                        const links = item.volumeInfo?.imageLinks;
+                        if (links) {
+                            const url = (links.large || links.medium || links.thumbnail || '').replace('http://', 'https://').replace('&edge=curl', '') + '&fife=w400-h600';
+                            setSrc(url);
+                            return;
+                        }
+                    }
+                    setFailed(true);
+                })
+                .catch(() => setFailed(true));
+        }, [title, author]);
+        if (failed || (src === null)) {
+            if (src === null && !failed) {
+                return <div className="book-cover-fallback" style={{ height }}><span className="book-cover-fallback-icon">⏳</span><span className="book-cover-fallback-title">{title}</span></div>;
+            }
+            return <div className="book-cover-fallback" style={{ height }}><span className="book-cover-fallback-icon">📚</span><span className="book-cover-fallback-title">{title}</span></div>;
+        }
+        return <img className={`book-cover-img ${className}`} src={src} alt={title} style={{ height }} onError={() => setFailed(true)} />;
+    }
     const OL = (isbn) => `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
 
     const BOOKS_DATA = {
@@ -375,32 +491,26 @@
     // =============================================
     const DB = {
         async getUser(username) {
-            const snap = await window.firebaseDB.collection('users').where('username','==',username).limit(1).get();
-            if (snap.empty) return null;
-            return { id: snap.docs[0].id, ...snap.docs[0].data() };
+            const users = await window.FBDB.getAll('users');
+            return users.find(u => (u.username || '').toLowerCase() === username.toLowerCase()) || null;
         },
         async emailExists(email) {
-            const snap = await window.firebaseDB.collection('users').where('email','==',email).limit(1).get();
-            return !snap.empty;
+            const users = await window.FBDB.getAll('users');
+            return users.some(u => (u.email || '').toLowerCase() === email.toLowerCase());
         },
         async createUser(data) {
-            const ref = await window.firebaseDB.collection('users').add({
-                ...data, borrowedBooks: {},
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            return ref.id;
+            return await window.FBDB.add('users', { ...data, borrowedBooks: {} });
         },
         async saveBorrowed(userId, borrowedBooks) {
-            await window.firebaseDB.collection('users').doc(userId).update({ borrowedBooks });
+            await window.FBDB.update('users', userId, { borrowedBooks });
         },
         listenAllBorrowed(callback) {
-            return window.firebaseDB.collection('users').onSnapshot(snap => {
+            return window.FBDB.listenAll('users', (users) => {
                 const map = {};
-                snap.docs.forEach(doc => {
-                    const data = doc.data();
-                    Object.keys(data.borrowedBooks || {}).forEach(bookId => {
-                        if (data.borrowedBooks[bookId]) {
-                            map[bookId] = { username: data.username, name: data.name || data.username };
+                users.forEach(u => {
+                    Object.keys(u.borrowedBooks || {}).forEach(bookId => {
+                        if (u.borrowedBooks[bookId]) {
+                            map[bookId] = { username: u.username, name: u.name || u.username };
                         }
                     });
                 });
@@ -438,15 +548,11 @@
     // =============================================
     function BookModal({ book, onClose }) {
         if (!book) return null;
-        const [imgFailed, setImgFailed] = useState(false);
         return (
             <div className="modal-overlay" onClick={onClose}>
                 <div className="modal-box" onClick={e => e.stopPropagation()}>
                     <button className="modal-close" onClick={onClose}>✕</button>
-                    {imgFailed
-                        ? <div className="modal-cover-fallback">📚</div>
-                        : <img className="modal-cover" src={book.cover} alt={book.title} onError={() => setImgFailed(true)} />
-                    }
+                    <DynamicCover title={book.title} author={book.author} height={220} className="modal-cover" />
                     <h3 className="modal-title">{book.title}</h3>
                     <p className="modal-author">{book.author}</p>
                     <div className="modal-divider" />
@@ -512,19 +618,28 @@
             return () => { if (unsubRef.current) unsubRef.current(); };
         }, []);
 
+        const withTimeout = (promise, ms = 10000) =>
+            Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
         const handleLogin = async (e) => {
             e.preventDefault(); setError(''); setSuccess('');
             if (!username || !password) { setError('❌ Preencha usuário e senha!'); return; }
             setIsSubmitting(true);
             try {
-                const user = await DB.getUser(username);
-                if (!user) { setError('❌ Usuário não encontrado! Cadastre-se primeiro.'); return; }
-                if (user.password !== password) { setError('❌ Senha incorreta!'); return; }
+                const user = await withTimeout(DB.getUser(username));
+                if (!user) { setError('❌ Usuário não encontrado! Cadastre-se primeiro.'); setIsSubmitting(false); return; }
+                if (user.password !== password) { setError('❌ Senha incorreta!'); setIsSubmitting(false); return; }
                 const session = { id: user.id, username: user.username, name: user.name };
                 sessionStorage.setItem('biblioshare-session', JSON.stringify(session));
                 setCurrentUser(session); setMyBorrowed(user.borrowedBooks || {});
                 setAppState('app'); startRealtime();
-            } catch { setError('❌ Erro ao conectar. Verifique sua internet.'); }
+            } catch(err) {
+                if (err.message === 'timeout') {
+                    setError('❌ Tempo esgotado. Verifique sua conexão ou tente novamente.');
+                } else {
+                    setError('❌ Erro ao conectar: ' + (err.message || 'verifique sua internet.'));
+                }
+            }
             finally { setIsSubmitting(false); }
         };
 
@@ -536,13 +651,19 @@
             if (password !== confirmPassword) { setError('❌ As senhas não coincidem!'); return; }
             setIsSubmitting(true);
             try {
-                if (await DB.getUser(username)) { setError('❌ Este usuário já existe!'); return; }
-                if (await DB.emailExists(email)) { setError('❌ Este email já está cadastrado!'); return; }
-                await DB.createUser({ name, email, username, password });
+                if (await withTimeout(DB.getUser(username))) { setError('❌ Este usuário já existe!'); setIsSubmitting(false); return; }
+                if (await withTimeout(DB.emailExists(email))) { setError('❌ Este email já está cadastrado!'); setIsSubmitting(false); return; }
+                await withTimeout(DB.createUser({ name, email, username, password }));
                 setSuccess('✅ Conta criada com sucesso! Faça login.');
                 setShowRegister(false);
                 setName(''); setEmail(''); setUsername(''); setPassword(''); setConfirmPassword('');
-            } catch { setError('❌ Erro ao criar conta. Tente novamente.'); }
+            } catch(err) {
+                if (err.message === 'timeout') {
+                    setError('❌ Tempo esgotado. Verifique sua conexão ou tente novamente.');
+                } else {
+                    setError('❌ Erro ao criar conta: ' + (err.message || 'tente novamente.'));
+                }
+            }
             finally { setIsSubmitting(false); }
         };
 
@@ -587,7 +708,7 @@
                         return (
                             <div key={book.id} className={`book-card${state === 'taken' ? ' unavailable' : ''}`}>
                                 <div style={{position:'relative'}}>
-                                    <BookCover src={book.cover} title={book.title} height={380} />
+                                    <DynamicCover title={book.title} author={book.author} height={380} />
                                     {state === 'taken' && <div className="cover-ribbon">Indisponível</div>}
                                 </div>
                                 <div className="book-info">
@@ -650,10 +771,7 @@
                         <h1 className="login-title">BiblioShare</h1>
                     </div>
                     <p className="login-subtitle">Sistema de Empréstimo de Livros</p>
-                    <div style={{textAlign:'center'}}>
-                        <span className="db-badge"><span className="db-badge-dot"></span>Banco de dados online ☁️</span>
-                    </div>
-                    <br/>
+
                     {error && <div className="error-message">{error}</div>}
                     {success && <div className="success-message">{success}</div>}
                     {!showRegister ? (
