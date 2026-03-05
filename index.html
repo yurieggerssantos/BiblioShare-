@@ -3,1189 +3,721 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BiblioShare - Sistema de Empréstimo de Livros</title>
-    
-    <!-- Fontes -->
+    <title>BiblioShare - Biblioteca Virtual Completa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- React e Babel -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --primary: #1a1a2e;
-            --secondary: #16213e;
-            --accent: #e94560;
-            --accent-light: #ff6b6b;
-            --success: #06d6a0;
-            --bg: #faf9f6;
-            --card-bg: #ffffff;
-            --text: #2c3e50;
-            --text-light: #7f8c8d;
-            --border: #e0e0e0;
+            --primary: #1a1a2e; --secondary: #16213e; --accent: #e94560;
+            --accent-light: #ff6b6b; --success: #06d6a0; --purple: #667eea;
+            --pink: #f093fb; --bg: #faf9f6; --card-bg: #ffffff;
+            --text: #2c3e50; --text-light: #7f8c8d; --border: #e0e0e0;
+            --warning: #f59e0b;
         }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 2rem; }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
+        @keyframes slideUpBounce { 0%{opacity:0;transform:translateY(30px)} 60%{transform:translateY(-5px)} 100%{opacity:1;transform:translateY(0)} }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes moveGrid { 0%{transform:translate(0,0)} 100%{transform:translate(30px,30px)} }
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes slideInShake { 0%{opacity:0;transform:translateX(-20px)} 60%{transform:translateX(5px)} 100%{opacity:1;transform:translateX(0)} }
+        @keyframes spin { to{transform:rotate(360deg)} }
+        @keyframes modalIn { 0%{opacity:0;transform:scale(0.85) translateY(20px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+        @keyframes blink { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.15);opacity:0.7} }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
+        .loading-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg,#667eea,#764ba2,#f093fb); color:white; gap:1.5rem; }
+        .loading-spinner { width:60px; height:60px; border:5px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.8s linear infinite; }
+        .loading-text { font-size:1.3rem; font-weight:600; opacity:0.9; }
 
-        /* ANIMAÇÕES */
-        @keyframes slideUpBounce {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        .login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%); padding:2rem; position:relative; overflow:hidden; }
+        .login-screen::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px); background-size:30px 30px; animation:moveGrid 20s linear infinite; }
+        .login-box { background:rgba(255,255,255,0.95); backdrop-filter:blur(20px); padding:3rem 2.5rem; border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,0.3); width:100%; max-width:480px; position:relative; animation:slideUpBounce 0.6s cubic-bezier(0.68,-0.55,0.265,1.55); }
+        .login-logo { text-align:center; margin-bottom:2rem; animation:float 3s ease-in-out infinite; }
+        .login-logo-icon { font-size:4rem; margin-bottom:0.5rem; }
+        .login-title { font-family:'Crimson Pro',serif; font-size:2.8rem; text-align:center; margin-bottom:0.5rem; background:linear-gradient(135deg,var(--primary),var(--accent),#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700; }
+        .login-subtitle { text-align:center; color:var(--text-light); margin-bottom:2.5rem; font-size:1.1rem; font-weight:500; }
+        .form-group { margin-bottom:1.5rem; }
+        .form-label { display:block; margin-bottom:0.5rem; font-weight:600; color:var(--text); font-size:0.95rem; }
+        .form-input { width:100%; padding:1rem 1.25rem; border:2px solid var(--border); border-radius:12px; font-size:1rem; transition:all 0.3s ease; font-family:'Inter',sans-serif; background:white; }
+        .form-input:focus { outline:none; border-color:var(--accent); box-shadow:0 4px 20px rgba(233,69,96,0.15); transform:translateY(-2px); }
+        .form-hint { font-size:0.85rem; color:var(--text-light); margin-top:0.25rem; }
+        .btn { width:100%; padding:1.1rem 1.5rem; border:none; border-radius:12px; font-size:1.05rem; font-weight:700; cursor:pointer; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); font-family:'Inter',sans-serif; position:relative; overflow:hidden; }
+        .btn::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent); transition:left 0.5s ease; }
+        .btn:hover::before { left:100%; }
+        .btn:disabled { opacity:0.7; cursor:not-allowed; }
+        .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent-light)); color:white; box-shadow:0 8px 25px rgba(233,69,96,0.3); }
+        .btn-primary:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 12px 35px rgba(233,69,96,0.4); }
+        .error-message { background:linear-gradient(135deg,rgba(255,107,107,0.15),rgba(238,90,111,0.15)); color:#d63850; padding:1rem 1.25rem; border-radius:12px; margin-bottom:1.5rem; border-left:4px solid var(--accent); font-weight:600; animation:slideInShake 0.5s ease; }
+        .success-message { background:linear-gradient(135deg,rgba(6,214,160,0.15),rgba(4,179,134,0.15)); color:var(--success); padding:1rem 1.25rem; border-radius:12px; margin-bottom:1.5rem; border-left:4px solid var(--success); font-weight:600; animation:slideInShake 0.5s ease; }
+        .toggle-form { text-align:center; margin-top:2rem; color:var(--text-light); font-weight:500; }
+        .toggle-form button { background:none; border:none; color:var(--accent); font-weight:700; cursor:pointer; transition:all 0.3s ease; position:relative; }
+        .toggle-form button::after { content:''; position:absolute; bottom:-2px; left:0; width:0; height:2px; background:var(--accent); transition:width 0.3s ease; }
+        .toggle-form button:hover::after { width:100%; }
 
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
-        }
+        header { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; padding:1.5rem 0; box-shadow:0 4px 20px rgba(0,0,0,0.15); position:sticky; top:0; z-index:100; }
+        .header-content { display:flex; justify-content:space-between; align-items:center; }
+        .logo { font-family:'Crimson Pro',serif; font-size:2rem; font-weight:700; display:flex; align-items:center; gap:0.5rem; }
+        .user-info { display:flex; align-items:center; gap:1.5rem; }
+        .user-name { font-weight:600; font-size:1.05rem; }
+        .btn-logout { background:linear-gradient(135deg,var(--accent),var(--accent-light)); color:white; padding:0.75rem 1.75rem; border:none; border-radius:10px; cursor:pointer; font-weight:700; transition:all 0.3s ease; box-shadow:0 4px 15px rgba(233,69,96,0.3); }
+        .btn-logout:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(233,69,96,0.4); }
 
-        @keyframes moveGrid {
-            0% {
-                transform: translate(0, 0);
-            }
-            100% {
-                transform: translate(30px, 30px);
-            }
-        }
+        .hero { background:linear-gradient(135deg,rgba(102,126,234,0.08),rgba(118,75,162,0.08)); padding:5rem 0; text-align:center; margin:3rem 0; border-radius:24px; position:relative; overflow:hidden; animation:fadeIn 0.8s ease; }
+        .hero::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(102,126,234,0.1) 1px,transparent 1px); background-size:30px 30px; animation:moveGrid 30s linear infinite; }
+        .hero > * { position:relative; z-index:1; }
+        .hero h1 { font-family:'Crimson Pro',serif; font-size:3.5rem; background:linear-gradient(135deg,var(--primary),var(--accent),#764ba2); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:1rem; font-weight:800; }
+        .hero p { font-size:1.3rem; color:var(--text); opacity:0.8; font-weight:500; }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
+        .category-section { margin:4rem 0; }
+        .category-header { margin-bottom:2rem; padding-bottom:1rem; border-bottom:3px solid transparent; border-image:linear-gradient(90deg,var(--purple),var(--pink),var(--success)) 1; }
+        .category-title { font-family:'Crimson Pro',serif; font-size:2.5rem; background:linear-gradient(135deg,var(--primary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; font-weight:700; margin-bottom:0.5rem; }
+        .category-subtitle { color:var(--text-light); font-size:1.1rem; font-weight:500; }
 
-        @keyframes slideInShake {
-            0% {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            60% {
-                transform: translateX(5px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        /* LOGIN SCREEN */
-        .login-screen {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-screen::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
-            animation: moveGrid 20s linear infinite;
-        }
-
-        .login-box {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 3rem 2.5rem;
-            border-radius: 24px;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 480px;
-            position: relative;
-            animation: slideUpBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-        }
-
-        .login-logo {
-            text-align: center;
-            margin-bottom: 2rem;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .login-logo-icon {
-            font-size: 4rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .login-title {
-            font-family: 'Crimson Pro', serif;
-            font-size: 2.8rem;
-            text-align: center;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent), #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-        }
-
-        .login-subtitle {
-            text-align: center;
-            color: var(--text-light);
-            margin-bottom: 2.5rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.95rem;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 1rem 1.25rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-            background: white;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent);
-            box-shadow: 0 4px 20px rgba(233, 69, 96, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .form-hint {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: 0.25rem;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 1.1rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn:hover::before {
-            left: 100%;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            color: white;
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(233, 69, 96, 0.4);
-        }
-
-        .btn-primary:active {
-            transform: translateY(-1px);
-        }
-
-        .error-message {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(238, 90, 111, 0.15));
-            color: #d63850;
-            padding: 1rem 1.25rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid var(--accent);
-            font-weight: 600;
-            animation: slideInShake 0.5s ease;
-        }
-
-        .success-message {
-            background: linear-gradient(135deg, rgba(6, 214, 160, 0.15), rgba(4, 179, 134, 0.15));
-            color: var(--success);
-            padding: 1rem 1.25rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid var(--success);
-            font-weight: 600;
-            animation: slideInShake 0.5s ease;
-        }
-
-        .toggle-form {
-            text-align: center;
-            margin-top: 2rem;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .toggle-form button {
-            background: none;
-            border: none;
-            color: var(--accent);
-            font-weight: 700;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .toggle-form button::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--accent);
-            transition: width 0.3s ease;
-        }
-
-        .toggle-form button:hover::after {
-            width: 100%;
-        }
-
-        .toggle-form button:hover {
-            color: var(--accent-light);
-        }
-
-        /* HEADER */
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 1.5rem 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-family: 'Crimson Pro', serif;
-            font-size: 2rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-        }
-
-        .user-name {
-            font-weight: 600;
-            font-size: 1.05rem;
-        }
-
-        .btn-logout {
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            color: white;
-            padding: 0.75rem 1.75rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.3);
-        }
-
-        .btn-logout:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
-        }
-
-        /* HERO */
-        .hero {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
-            padding: 5rem 0;
-            text-align: center;
-            margin: 3rem 0;
-            border-radius: 24px;
-            position: relative;
-            overflow: hidden;
-            animation: fadeIn 0.8s ease;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            animation: moveGrid 30s linear infinite;
-        }
-
-        .hero > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h1 {
-            font-family: 'Crimson Pro', serif;
-            font-size: 3.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--accent), #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 1rem;
-            font-weight: 800;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            color: var(--text);
-            opacity: 0.8;
-            font-weight: 500;
-        }
-
-        /* BOOKS GRID */
-        .books-section {
-            margin: 4rem 0;
-        }
-
-        .books-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 2.5rem;
-            animation: fadeIn 0.6s ease 0.3s both;
-        }
-
-        .book-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid transparent;
-            position: relative;
-        }
-
-        .book-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, var(--accent), #764ba2, var(--success));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .book-card:hover::before {
-            opacity: 1;
-        }
-
-        .book-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(102, 126, 234, 0.25);
-            border-color: rgba(102, 126, 234, 0.2);
-        }
+        .books-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:2.5rem; animation:fadeIn 0.6s ease 0.3s both; }
+        .book-card { background:var(--card-bg); border-radius:20px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,0.12); transition:all 0.4s cubic-bezier(0.4,0,0.2,1); border:2px solid transparent; position:relative; }
+        .book-card::before { content:''; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(90deg,var(--accent),#764ba2,var(--success)); opacity:0; transition:opacity 0.3s ease; z-index:1; }
+        .book-card:hover::before { opacity:1; }
+        .book-card:hover { transform:translateY(-12px) scale(1.02); box-shadow:0 20px 50px rgba(102,126,234,0.25); border-color:rgba(102,126,234,0.2); }
+        .book-card.unavailable { opacity:0.75; }
+        .book-card.unavailable:hover { transform:translateY(-4px) scale(1.005); }
 
         .book-cover {
-            width: 100%;
-            height: 400px;
-            background: linear-gradient(135deg, var(--secondary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Crimson Pro', serif;
-            font-size: 1.6rem;
-            color: white;
-            text-align: center;
-            padding: 2rem;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            overflow: hidden;
+            width:100%; height:380px;
+            background:linear-gradient(135deg,var(--secondary),var(--accent));
+            background-size:cover; background-position:center top;
+            position:relative;
         }
-
-        .book-cover::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        /* Fallback visual para capas que não carregam */
+        .book-cover-img {
+            width:100%; height:380px;
+            object-fit:cover; object-position:center top;
+            display:block;
         }
-
-        .book-card:hover .book-cover::after {
-            opacity: 1;
+        .book-cover-fallback {
+            width:100%; height:380px;
+            background:linear-gradient(135deg,var(--primary),var(--purple));
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            color:white; padding:1rem; text-align:center; gap:0.5rem;
         }
+        .book-cover-fallback-icon { font-size:3rem; }
+        .book-cover-fallback-title { font-family:'Crimson Pro',serif; font-size:1.1rem; font-weight:700; }
 
-        .book-info {
-            padding: 2rem;
-            background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(250,249,246,0.5) 100%);
-        }
+        .cover-ribbon { position:absolute; top:18px; right:-28px; background:linear-gradient(135deg,var(--warning),#d97706); color:white; font-size:0.72rem; font-weight:800; padding:0.35rem 2.5rem; transform:rotate(35deg); text-transform:uppercase; letter-spacing:1px; box-shadow:0 3px 12px rgba(245,158,11,0.4); pointer-events:none; }
 
-        .book-title {
-            font-family: 'Crimson Pro', serif;
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
-            line-height: 1.3;
-        }
+        .book-info { padding:1.75rem; }
+        .book-title { font-family:'Crimson Pro',serif; font-size:1.35rem; font-weight:700; margin-bottom:0.4rem; color:var(--primary); line-height:1.3; }
+        .book-author { color:var(--text-light); margin-bottom:1.1rem; font-weight:500; font-size:0.95rem; }
+        .book-status { display:inline-flex; align-items:center; gap:0.4rem; padding:0.45rem 1.1rem; border-radius:25px; font-size:0.82rem; font-weight:700; margin-bottom:1.1rem; text-transform:uppercase; letter-spacing:0.5px; }
+        .status-available { background:linear-gradient(135deg,rgba(6,214,160,0.15),rgba(4,179,134,0.15)); color:var(--success); border:2px solid var(--success); }
+        .status-mine { background:linear-gradient(135deg,rgba(102,126,234,0.15),rgba(118,75,162,0.15)); color:var(--purple); border:2px solid var(--purple); }
+        .status-taken { background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.15)); color:var(--warning); border:2px solid var(--warning); }
+        .status-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+        .status-dot-green { background:var(--success); animation:blink 2s infinite; }
+        .status-dot-purple { background:var(--purple); }
+        .status-dot-orange { background:var(--warning); animation:blink 1.8s infinite; }
+        .borrowed-by { font-size:0.8rem; color:var(--text-light); margin-bottom:0.9rem; display:flex; align-items:center; gap:0.4rem; }
 
-        .book-author {
-            color: var(--text-light);
-            margin-bottom: 1.25rem;
-            font-weight: 500;
-            font-size: 1rem;
-        }
+        .book-actions { display:flex; flex-direction:column; gap:0.6rem; }
+        .btn-borrow, .btn-return, .btn-read, .btn-disabled-book { padding:0.9rem 1.5rem; border:none; border-radius:14px; font-weight:700; cursor:pointer; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); font-family:'Inter',sans-serif; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.5px; }
+        .btn-borrow { background:linear-gradient(135deg,var(--success),#04b386); color:white; box-shadow:0 6px 20px rgba(6,214,160,0.3); }
+        .btn-borrow:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(6,214,160,0.4); }
+        .btn-read { background:linear-gradient(135deg,var(--purple),#764ba2); color:white; box-shadow:0 6px 20px rgba(102,126,234,0.3); }
+        .btn-read:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(102,126,234,0.4); }
+        .btn-return { background:linear-gradient(135deg,var(--accent),var(--accent-light)); color:white; box-shadow:0 6px 20px rgba(233,69,96,0.3); }
+        .btn-return:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(233,69,96,0.4); }
+        .btn-disabled-book { background:linear-gradient(135deg,#d1d5db,#9ca3af); color:white; cursor:not-allowed; opacity:0.75; }
 
-        .book-status {
-            display: inline-block;
-            padding: 0.5rem 1.25rem;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 1.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            position: relative;
-            overflow: hidden;
-        }
+        .modal-overlay { position:fixed; inset:0; background:rgba(10,10,20,0.78); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:1.5rem; animation:fadeIn 0.2s ease; }
+        .modal-box { background:white; border-radius:24px; padding:2.5rem 2rem; max-width:400px; width:100%; box-shadow:0 40px 100px rgba(0,0,0,0.4); animation:modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1); text-align:center; position:relative; }
+        .modal-close { position:absolute; top:1rem; right:1.25rem; background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-light); transition:color 0.2s; line-height:1; }
+        .modal-close:hover { color:var(--accent); }
+        .modal-cover { width:105px; height:148px; border-radius:10px; margin:0 auto 1.25rem; object-fit:cover; object-position:center top; box-shadow:0 12px 35px rgba(0,0,0,0.25); display:block; }
+        .modal-cover-fallback { width:105px; height:148px; border-radius:10px; margin:0 auto 1.25rem; background:linear-gradient(135deg,var(--primary),var(--purple)); display:flex; align-items:center; justify-content:center; font-size:3rem; box-shadow:0 12px 35px rgba(0,0,0,0.25); }
+        .modal-title { font-family:'Crimson Pro',serif; font-size:1.45rem; font-weight:700; color:var(--primary); margin-bottom:0.3rem; line-height:1.3; }
+        .modal-author { color:var(--text-light); font-size:0.92rem; font-weight:500; margin-bottom:1.6rem; }
+        .modal-divider { width:50px; height:3px; background:linear-gradient(90deg,var(--accent),var(--purple)); border-radius:2px; margin:0 auto 1.6rem; }
+        .btn-access { display:inline-flex; align-items:center; justify-content:center; gap:0.6rem; background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border:none; border-radius:14px; padding:1rem 2rem; font-size:0.98rem; font-weight:600; cursor:pointer; text-decoration:none; transition:all 0.3s ease; box-shadow:0 8px 25px rgba(26,26,46,0.3); font-family:'Inter',sans-serif; width:100%; letter-spacing:0.3px; }
+        .btn-access:hover { transform:translateY(-3px); box-shadow:0 14px 35px rgba(26,26,46,0.4); }
 
-        .book-status::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
+        .db-badge { display:inline-flex; align-items:center; gap:0.4rem; background:rgba(6,214,160,0.15); color:var(--success); border:1px solid var(--success); border-radius:20px; padding:0.3rem 0.8rem; font-size:0.8rem; font-weight:600; margin-top:1rem; }
+        .db-badge-dot { width:8px; height:8px; border-radius:50%; background:var(--success); animation:pulse 2s infinite; }
 
-        .book-card:hover .book-status::before {
-            left: 100%;
-        }
+        footer { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; padding:3rem 0 2rem; margin-top:5rem; position:relative; overflow:hidden; }
+        footer::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(255,255,255,0.05) 1px,transparent 1px); background-size:40px 40px; animation:moveGrid 30s linear infinite; }
+        .footer-content { position:relative; z-index:1; text-align:center; }
+        .footer-devs { font-family:'Crimson Pro',serif; font-size:1.3rem; margin-bottom:1.5rem; font-weight:600; }
+        .footer-names { font-size:1.1rem; margin-bottom:2rem; font-weight:500; }
+        .footer-email { display:inline-flex; align-items:center; gap:0.75rem; color:white; text-decoration:none; padding:0.75rem 1.5rem; background:rgba(255,255,255,0.1); border-radius:50px; transition:all 0.3s ease; font-weight:600; border:2px solid rgba(255,255,255,0.2); }
+        .footer-email:hover { background:rgba(255,255,255,0.2); transform:translateY(-3px); }
+        .email-icon { background:var(--accent); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.1rem; }
+        .footer-copyright { margin-top:2rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); font-size:0.9rem; opacity:0.7; }
 
-        .status-available {
-            background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), rgba(4, 179, 134, 0.2));
-            color: var(--success);
-            border: 2px solid var(--success);
-            box-shadow: 0 4px 15px rgba(6, 214, 160, 0.2);
-        }
-
-        .status-borrowed {
-            background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(238, 90, 111, 0.2));
-            color: var(--accent);
-            border: 2px solid var(--accent);
-            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.2);
-        }
-
-        .book-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .btn-borrow, .btn-return, .btn-read {
-            padding: 1rem 1.5rem;
-            border: none;
-            border-radius: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-family: 'Inter', sans-serif;
-            font-size: 1rem;
-            position: relative;
-            overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-borrow::before, .btn-return::before, .btn-read::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .btn-borrow:hover::before, .btn-return:hover::before, .btn-read:hover::before {
-            left: 100%;
-        }
-
-        .btn-borrow {
-            background: linear-gradient(135deg, var(--success), #04b386);
-            color: white;
-            box-shadow: 0 6px 20px rgba(6, 214, 160, 0.3);
-        }
-
-        .btn-borrow:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(6, 214, 160, 0.4);
-        }
-
-        .btn-read {
-            background: linear-gradient(135deg, #06d6a0, #04b386);
-            color: white;
-            box-shadow: 0 6px 20px rgba(6, 214, 160, 0.3);
-        }
-
-        .btn-read:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(6, 214, 160, 0.4);
-        }
-
-        .btn-return {
-            background: linear-gradient(135deg, var(--accent), var(--accent-light));
-            color: white;
-            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.3);
-        }
-
-        .btn-return:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(233, 69, 96, 0.4);
-        }
-
-        /* FOOTER */
-        footer {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 3rem 0 2rem;
-            margin-top: 5rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        footer::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
-            animation: moveGrid 30s linear infinite;
-        }
-
-        .footer-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-        }
-
-        .footer-devs {
-            font-family: 'Crimson Pro', serif;
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-
-        .footer-names {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            font-weight: 500;
-        }
-
-        .footer-email {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            color: white;
-            text-decoration: none;
-            padding: 0.75rem 1.5rem;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255,255,255,0.2);
-        }
-
-        .footer-email:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
-            border-color: var(--accent-light);
-        }
-
-        .email-icon {
-            background: var(--accent);
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-        }
-
-        .footer-email:hover .email-icon {
-            background: var(--accent-light);
-            transform: rotate(360deg) scale(1.1);
-        }
-
-        .footer-copyright {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 0.9rem;
-            opacity: 0.7;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .books-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .login-title {
-                font-size: 2.2rem;
-            }
+        @media (max-width:768px) {
+            .hero h1 { font-size:2.2rem; }
+            .books-grid { grid-template-columns:1fr; }
+            .category-title { font-size:2rem; }
+            .user-name { display:none; }
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+<div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyCbbCBP6gT19_7F3mkthPoBDWnnv98XU_Q",
+        authDomain: "biblioshare-61f23.firebaseapp.com",
+        projectId: "biblioshare-61f23",
+        storageBucket: "biblioshare-61f23.firebasestorage.app",
+        messagingSenderId: "298180748660",
+        appId: "1:298180748660:web:85c511358a9bf44c1cf821",
+        measurementId: "G-C681YGYC6S"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.firebaseDB = firebase.firestore();
+</script>
 
-        // ===================================
-        // DADOS DOS LIVROS
-        // ===================================
-        const BOOKS_DATA = [
+<script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Open Library: https://covers.openlibrary.org/b/isbn/{ISBN}-L.jpg
+    // Para livros sem ISBN na OL, usamos imagens do Google Books ou Amazon
+    const OL = (isbn) => `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg`;
+
+    const BOOKS_DATA = {
+        infantil: [
             {
-                id: 1,
-                title: 'Dom Casmurro',
-                author: 'Machado de Assis',
-                cover: 'https://m.media-amazon.com/images/I/51rQVno0R4L._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000180.pdf'
+                id: 101,
+                title: 'O Pequeno Príncipe',
+                author: 'Antoine de Saint-Exupéry',
+                cover: OL('8595081514'),
+                bookUrl: 'https://bibliotecadigital.aemrt.pt/download/785/O%20Pequeno%20Principe%20-%20Antoine%20de%20Saint-Exupery.pdf'
             },
             {
-                id: 2,
-                title: 'O Cortiço',
-                author: 'Aluísio Azevedo',
-                cover: 'https://m.media-amazon.com/images/I/51xH0VKgTqL._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000015.pdf'
+                id: 102,
+                title: 'Harry Potter e a Pedra Filosofal',
+                author: 'J.K. Rowling',
+                cover: OL('8532530788'),
+                bookUrl: 'https://cdn.bookey.app/files/pdf/book/pt/harry-potter-e-a-pedra-filosofal.pdf'
             },
             {
-                id: 3,
-                title: 'Memórias Póstumas de Brás Cubas',
-                author: 'Machado de Assis',
-                cover: 'https://m.media-amazon.com/images/I/51EO7EYqWWL._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000181.pdf'
+                id: 103,
+                title: 'O Menino Maluquinho',
+                author: 'Ziraldo',
+                cover: OL('8508100302'),
+                bookUrl: 'https://contranarrativas.wordpress.com/wp-content/uploads/2019/02/ziraldo-o-menino-maluquinho.pdf'
             },
             {
-                id: 4,
-                title: 'Iracema',
-                author: 'José de Alencar',
-                cover: 'https://m.media-amazon.com/images/I/51yVyT5zXxL._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000136.pdf'
+                id: 104,
+                title: 'A Fantástica Fábrica de Chocolate',
+                author: 'Roald Dahl',
+                cover: OL('8573023155'),
+                bookUrl: 'https://kbook.com.br/wp-content/files_mf/afantasticafabricadechocolaroalddahl.pdf'
             },
             {
-                id: 5,
-                title: 'O Alienista',
-                author: 'Machado de Assis',
-                cover: 'https://m.media-amazon.com/images/I/51a+TfhGU4L._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000231.pdf'
-            },
-            {
-                id: 6,
-                title: 'Senhora',
-                author: 'José de Alencar',
-                cover: 'https://m.media-amazon.com/images/I/51zFTkgvpEL._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bn000117.pdf'
-            },
-            {
-                id: 7,
+                id: 105,
                 title: 'Vidas Secas',
                 author: 'Graciliano Ramos',
-                cover: 'https://m.media-amazon.com/images/I/51YBiP2sITL._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bn000158.pdf'
+                cover: OL('8573264978'),
+                bookUrl: 'https://iedamagri.wordpress.com/wp-content/uploads/2020/02/vidas-secas-graciliano-ramos.pdf'
             },
             {
-                id: 8,
-                title: 'A Escrava Isaura',
-                author: 'Bernardo Guimarães',
-                cover: 'https://m.media-amazon.com/images/I/51x0qwrPLbL._SY344_BO1,204,203,200_.jpg',
-                pdfUrl: 'http://www.dominiopublico.gov.br/download/texto/bn000001.pdf'
+                id: 106,
+                title: 'Percy Jackson e o Ladrão de Raios',
+                author: 'Rick Riordan',
+                cover: OL('8598078360'),
+                bookUrl: 'https://clubdelivros.wordpress.com/wp-content/uploads/2013/09/percy-jackson-e-os-olimpianos_-o-ladrao-de-raios-vol-1-rick-riordan.pdf'
+            },
+            {
+                id: 107,
+                title: 'A Metamorfose',
+                author: 'Franz Kafka',
+                cover: OL('8525430736'),
+                bookUrl: 'https://literaturalivre.sescsp.org.br/wp-content/uploads/2022/08/006-A-metamorfose-978-65-89008-23-1-1.pdf'
+            },
+            {
+                id: 108,
+                title: 'Iracema',
+                author: 'José de Alencar',
+                cover: OL('8572079481'),
+                bookUrl: 'https://arquivo.pandabooks.com.br/classicos/lt_iracema.pdf'
             }
-        ];
+        ],
+        feminino: [
+            {
+                id: 201,
+                title: 'A Revolução dos Bichos',
+                author: 'George Orwell',
+                cover: OL('8535920080'),
+                bookUrl: 'https://cdn.culturagenial.com/arquivos/a-revolucao-dos-bichos.pdf'
+            },
+            {
+                id: 202,
+                title: 'Vermelho, Branco e Sangue Azul',
+                author: 'Casey McQuiston',
+                cover: OL('8501119164'),
+                bookUrl: 'https://leitoracompulsiva.com.br/wp-content/uploads/Vermelho-branco-e-sangue-azul-Casey-McQuiston.pdf'
+            },
+            {
+                id: 203,
+                title: '1984',
+                author: 'George Orwell',
+                cover: OL('8535929584'),
+                bookUrl: 'https://www.dhnet.org.br/direitos/anthist/marcos/hdh_george_orwell_1984.pdf'
+            },
+            {
+                id: 204,
+                title: 'O Guarani',
+                author: 'José de Alencar',
+                cover: OL('8504015059'),
+                bookUrl: 'https://www.curso-objetivo.br/vestibular/assets/download/obras-literarias/jose-de-alencar/o-guarani.pdf'
+            },
+            {
+                id: 205,
+                title: 'Dom Casmurro',
+                author: 'Machado de Assis',
+                cover: OL('8535900454'),
+                bookUrl: 'https://www.curso-objetivo.br/vestibular/assets/download/obras-literarias/machado-de-assis/dom-casmurro.pdf'
+            },
+            {
+                id: 206,
+                title: 'Orgulho e Preconceito',
+                author: 'Jane Austen',
+                cover: OL('8535924264'),
+                bookUrl: 'https://www.agr-tc.pt/bibliotecadigital/aetc/download/21/Orgulho%20e%20Preconceito%20-%20Jane%20Austen.pdf'
+            },
+            {
+                id: 207,
+                title: 'O Alquimista',
+                author: 'Paulo Coelho',
+                cover: OL('8532511058'),
+                bookUrl: 'https://www.somostodosum.com.br/clube/ebooks/paulo%20coelho%20-%20o%20alquimista.pdf'
+            },
+            {
+                id: 208,
+                title: 'Romeu e Julieta',
+                author: 'William Shakespeare',
+                cover: OL('8525411760'),
+                bookUrl: 'https://sanderlei.com.br/PDF/William-Shakespeare/William-Shakespeare-Romeu-e-Julieta.pdf'
+            }
+        ],
+        bestsellers: [
+            {
+                id: 301,
+                title: 'A Culpa é das Estrelas',
+                author: 'John Green',
+                cover: OL('8501400144'),
+                bookUrl: 'https://worldfabibooks.wordpress.com/wp-content/uploads/2013/07/a-culpa-c3a9-das-estrelas-john-green.pdf'
+            },
+            {
+                id: 302,
+                title: 'Memórias Póstumas de Brás Cubas',
+                author: 'Machado de Assis',
+                cover: OL('8535901078'),
+                bookUrl: 'https://www.agr-tc.pt/bibliotecadigital/aetc/download/278/Memorias%20Postumas%20de%20Bras%20Cubas%20-%20Machado%20de%20Assis.pdf'
+            },
+            {
+                id: 303,
+                title: 'Anne de Green Gables',
+                author: 'L.M. Montgomery',
+                cover: OL('8578273346'),
+                bookUrl: 'https://cdn.bookey.app/files/pdf/book/pt/cole%C3%A7%C3%A3o-anne-de-green-gables.pdf'
+            },
+            {
+                id: 304,
+                title: 'Torto Arado',
+                author: 'Itamar Vieira Junior',
+                cover: OL('8535935228'),
+                bookUrl: 'https://arquivos.ufrrj.br/arquivos/20231640004aaa3831651f04d0487710d/Torto_arado_by_Itamar_Vieira_Junior_z-lib.org.pdf'
+            },
+            {
+                id: 305,
+                title: 'Hábitos Atômicos',
+                author: 'James Clear',
+                cover: OL('8550807567'),
+                bookUrl: 'https://sites-files.us-east-1.linodeobjects.com/elivros.digital/2023/03/habitos-atomicos-by-james-clear-z-liborg.pdf'
+            },
+            {
+                id: 306,
+                title: 'O Homem Mais Rico da Babilônia',
+                author: 'George S. Clason',
+                cover: OL('8576840663'),
+                bookUrl: 'https://www.eusoubud.com.br/wp-content/uploads/2021/07/O-Homem-Mais-Rico-da-Babilonia-George-S.-Clason.pdf'
+            },
+            {
+                id: 307,
+                title: 'Mindset',
+                author: 'Carol S. Dweck',
+                cover: OL('8543108624'),
+                bookUrl: 'https://cdn.bookey.app/files/pdf/book/pt/mindset.pdf'
+            },
+            {
+                id: 308,
+                title: 'Dom Quixote',
+                author: 'Miguel de Cervantes',
+                cover: OL('8535909389'),
+                bookUrl: 'https://www.paulus.com.br/assistencia-social/wp-content/uploads/2015/10/o-fidalgo-dom-quixote_miolo.pdf'
+            }
+        ]
+    };
 
-        // ===================================
-        // COMPONENTE PRINCIPAL
-        // ===================================
-        function App() {
-            // Estados
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [currentUser, setCurrentUser] = useState('');
-            const [showRegister, setShowRegister] = useState(false);
-            
-            // Estados do formulário
-            const [username, setUsername] = useState('');
-            const [password, setPassword] = useState('');
-            const [name, setName] = useState('');
-            const [email, setEmail] = useState('');
-            const [confirmPassword, setConfirmPassword] = useState('');
-            
-            // Estados de mensagens
-            const [error, setError] = useState('');
-            const [success, setSuccess] = useState('');
-            
-            // Estados dos livros
-            const [borrowedBooks, setBorrowedBooks] = useState({});
-
-            // Carregar dados do localStorage
-            useEffect(() => {
-                const savedUser = localStorage.getItem('biblioshare-current-user');
-                if (savedUser) {
-                    setIsLoggedIn(true);
-                    setCurrentUser(savedUser);
-                    const savedBorrowed = localStorage.getItem(`biblioshare-borrowed-${savedUser}`);
-                    if (savedBorrowed) {
-                        setBorrowedBooks(JSON.parse(savedBorrowed));
-                    }
-                }
-            }, []);
-
-            // Salvar livros emprestados
-            useEffect(() => {
-                if (currentUser) {
-                    localStorage.setItem(`biblioshare-borrowed-${currentUser}`, JSON.stringify(borrowedBooks));
-                }
-            }, [borrowedBooks, currentUser]);
-
-            // ===================================
-            // FUNÇÕES DE LOGIN/CADASTRO
-            // ===================================
-            
-            const handleLogin = (e) => {
-                e.preventDefault();
-                setError('');
-                setSuccess('');
-
-                if (!username || !password) {
-                    setError('❌ Preencha usuário e senha!');
-                    return;
-                }
-
-                // Buscar usuário no localStorage
-                const users = JSON.parse(localStorage.getItem('biblioshare-users') || '[]');
-                const user = users.find(u => u.username === username);
-
-                if (!user) {
-                    setError('❌ Usuário não encontrado! Cadastre-se primeiro.');
-                    return;
-                }
-
-                if (user.password !== password) {
-                    setError('❌ Senha incorreta!');
-                    return;
-                }
-
-                // Login bem-sucedido
-                setIsLoggedIn(true);
-                setCurrentUser(username);
-                localStorage.setItem('biblioshare-current-user', username);
-                
-                // Carregar livros emprestados
-                const savedBorrowed = localStorage.getItem(`biblioshare-borrowed-${username}`);
-                if (savedBorrowed) {
-                    setBorrowedBooks(JSON.parse(savedBorrowed));
-                }
-
-                console.log('✅ Login realizado:', username);
-            };
-
-            const handleRegister = (e) => {
-                e.preventDefault();
-                setError('');
-                setSuccess('');
-
-                // Validações
-                if (!name || !email || !username || !password || !confirmPassword) {
-                    setError('❌ Preencha todos os campos!');
-                    return;
-                }
-
-                if (!email.includes('@')) {
-                    setError('❌ Email inválido!');
-                    return;
-                }
-
-                if (password.length < 6) {
-                    setError('❌ Senha deve ter no mínimo 6 caracteres!');
-                    return;
-                }
-
-                if (password !== confirmPassword) {
-                    setError('❌ As senhas não coincidem!');
-                    return;
-                }
-
-                // Verificar se usuário já existe
-                const users = JSON.parse(localStorage.getItem('biblioshare-users') || '[]');
-                if (users.find(u => u.username === username)) {
-                    setError('❌ Este usuário já existe!');
-                    return;
-                }
-
-                // Criar novo usuário
-                const newUser = { name, email, username, password };
-                users.push(newUser);
-                localStorage.setItem('biblioshare-users', JSON.stringify(users));
-
-                setSuccess('✅ Conta criada com sucesso! Faça login.');
-                setShowRegister(false);
-                
-                // Limpar campos
-                setName('');
-                setEmail('');
-                setUsername('');
-                setPassword('');
-                setConfirmPassword('');
-
-                console.log('✅ Usuário cadastrado:', username);
-            };
-
-            const handleLogout = () => {
-                setIsLoggedIn(false);
-                setCurrentUser('');
-                setBorrowedBooks({});
-                localStorage.removeItem('biblioshare-current-user');
-                console.log('✅ Logout realizado');
-            };
-
-            // ===================================
-            // FUNÇÕES DOS LIVROS
-            // ===================================
-            
-            const handleBorrow = (bookId) => {
-                setBorrowedBooks(prev => ({
-                    ...prev,
-                    [bookId]: true
-                }));
-                console.log('📖 Livro emprestado:', bookId);
-            };
-
-            const handleReturn = (bookId) => {
-                setBorrowedBooks(prev => {
-                    const newBorrowed = { ...prev };
-                    delete newBorrowed[bookId];
-                    return newBorrowed;
+    // =============================================
+    // FIREBASE HELPERS
+    // =============================================
+    const DB = {
+        async getUser(username) {
+            const snap = await window.firebaseDB.collection('users').where('username','==',username).limit(1).get();
+            if (snap.empty) return null;
+            return { id: snap.docs[0].id, ...snap.docs[0].data() };
+        },
+        async emailExists(email) {
+            const snap = await window.firebaseDB.collection('users').where('email','==',email).limit(1).get();
+            return !snap.empty;
+        },
+        async createUser(data) {
+            const ref = await window.firebaseDB.collection('users').add({
+                ...data, borrowedBooks: {},
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            return ref.id;
+        },
+        async saveBorrowed(userId, borrowedBooks) {
+            await window.firebaseDB.collection('users').doc(userId).update({ borrowedBooks });
+        },
+        listenAllBorrowed(callback) {
+            return window.firebaseDB.collection('users').onSnapshot(snap => {
+                const map = {};
+                snap.docs.forEach(doc => {
+                    const data = doc.data();
+                    Object.keys(data.borrowedBooks || {}).forEach(bookId => {
+                        if (data.borrowedBooks[bookId]) {
+                            map[bookId] = { username: data.username, name: data.name || data.username };
+                        }
+                    });
                 });
-                console.log('📚 Livro devolvido:', bookId);
-            };
+                callback(map);
+            });
+        }
+    };
 
-            const openPDF = (url) => {
-                window.open(url, '_blank');
-            };
-
-            // ===================================
-            // RENDERIZAÇÃO
-            // ===================================
-
-            // Tela de Login
-            if (!isLoggedIn) {
-                return (
-                    <div className="login-screen">
-                        <div className="login-box">
-                            <div className="login-logo">
-                                <div className="login-logo-icon">📚</div>
-                                <h1 className="login-title">BiblioShare</h1>
-                            </div>
-                            <p className="login-subtitle">Sistema de Empréstimo de Livros</p>
-
-                            {error && <div className="error-message">{error}</div>}
-                            {success && <div className="success-message">{success}</div>}
-
-                            {!showRegister ? (
-                                // FORMULÁRIO DE LOGIN
-                                <form onSubmit={handleLogin}>
-                                    <div className="form-group">
-                                        <label className="form-label">👤 Usuário</label>
-                                        <input
-                                            type="text"
-                                            className="form-input"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            placeholder="Digite seu usuário"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label className="form-label">🔒 Senha</label>
-                                        <input
-                                            type="password"
-                                            className="form-input"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            placeholder="Digite sua senha"
-                                        />
-                                    </div>
-
-                                    <button type="submit" className="btn btn-primary">
-                                        Entrar
-                                    </button>
-
-                                    <div className="toggle-form">
-                                        Não tem conta? <button type="button" onClick={() => { setShowRegister(true); setError(''); setSuccess(''); }}>Cadastre-se agora</button>
-                                    </div>
-                                </form>
-                            ) : (
-                                // FORMULÁRIO DE CADASTRO
-                                <form onSubmit={handleRegister}>
-                                    <div className="form-group">
-                                        <label className="form-label">✨ Nome Completo</label>
-                                        <input
-                                            type="text"
-                                            className="form-input"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            placeholder="Seu nome completo"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label className="form-label">📧 Email</label>
-                                        <input
-                                            type="email"
-                                            className="form-input"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="seu@email.com"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label className="form-label">👤 Usuário</label>
-                                        <input
-                                            type="text"
-                                            className="form-input"
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            placeholder="Escolha um usuário"
-                                        />
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label className="form-label">🔒 Senha</label>
-                                        <input
-                                            type="password"
-                                            className="form-input"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            placeholder="Mínimo 6 caracteres"
-                                        />
-                                        <div className="form-hint">Mínimo 6 caracteres</div>
-                                    </div>
-
-                                    <div className="form-group">
-                                        <label className="form-label">🔒 Confirmar Senha</label>
-                                        <input
-                                            type="password"
-                                            className="form-input"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            placeholder="Digite a senha novamente"
-                                        />
-                                    </div>
-
-                                    <button type="submit" className="btn btn-primary">
-                                        🚀 Criar Conta
-                                    </button>
-
-                                    <div className="toggle-form">
-                                        Já tem conta? <button type="button" onClick={() => { setShowRegister(false); setError(''); setSuccess(''); }}>Fazer login</button>
-                                    </div>
-                                </form>
-                            )}
-                        </div>
-                    </div>
-                );
-            }
-
-            // Tela Principal (logado)
+    // =============================================
+    // CAPA COM FALLBACK
+    // =============================================
+    function BookCover({ src, title, height = 380, className = '' }) {
+        const [failed, setFailed] = useState(false);
+        if (failed) {
             return (
-                <>
-                    <header>
-                        <div className="container">
-                            <div className="header-content">
-                                <div className="logo">📚 BiblioShare</div>
-                                <div className="user-info">
-                                    <span className="user-name">Olá, {currentUser}! 👋</span>
-                                    <button className="btn-logout" onClick={handleLogout}>
-                                        Sair
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </header>
-
-                    <div className="container">
-                        <div className="hero">
-                            <h1>Biblioteca Virtual</h1>
-                            <p>Explore nossa coleção de clássicos da literatura brasileira</p>
-                        </div>
-
-                        <div className="books-section">
-                            <div className="books-grid">
-                                {BOOKS_DATA.map(book => (
-                                    <div key={book.id} className="book-card">
-                                        <div 
-                                            className="book-cover"
-                                            style={{ backgroundImage: `url(${book.cover})` }}
-                                        >
-                                            {!book.cover && <span>{book.title}</span>}
-                                        </div>
-                                        <div className="book-info">
-                                            <h3 className="book-title">{book.title}</h3>
-                                            <p className="book-author">{book.author}</p>
-                                            
-                                            <div className={`book-status ${borrowedBooks[book.id] ? 'status-borrowed' : 'status-available'}`}>
-                                                {borrowedBooks[book.id] ? '📖 Emprestado' : '✅ Disponível'}
-                                            </div>
-
-                                            <div className="book-actions">
-                                                {borrowedBooks[book.id] ? (
-                                                    <>
-                                                        <button 
-                                                            className="btn-read" 
-                                                            onClick={() => openPDF(book.pdfUrl)}
-                                                        >
-                                                            📖 Ler Livro
-                                                        </button>
-                                                        <button 
-                                                            className="btn-return" 
-                                                            onClick={() => handleReturn(book.id)}
-                                                        >
-                                                            ↩️ Devolver
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <button 
-                                                        className="btn-borrow" 
-                                                        onClick={() => handleBorrow(book.id)}
-                                                    >
-                                                        📚 Emprestar
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <footer>
-                        <div className="container">
-                            <div className="footer-content">
-                                <div className="footer-devs">
-                                    👨‍💻 Desenvolvido por:
-                                </div>
-                                <div className="footer-names">
-                                    Yuri, Vitor, Mari e Felipe
-                                </div>
-                                <a href="mailto:yurieggers16@gmail.com" className="footer-email">
-                                    <div className="email-icon">@</div>
-                                    yurieggers16@gmail.com
-                                </a>
-                                <div className="footer-copyright">
-                                    BiblioShare © 2026 • Feito com ❤️ para amantes de livros
-                                </div>
-                            </div>
-                        </div>
-                    </footer>
-                </>
+                <div className="book-cover-fallback" style={{ height }}>
+                    <span className="book-cover-fallback-icon">📚</span>
+                    <span className="book-cover-fallback-title">{title}</span>
+                </div>
             );
         }
+        return (
+            <img
+                className={`book-cover-img ${className}`}
+                src={src}
+                alt={title}
+                style={{ height }}
+                onError={() => setFailed(true)}
+            />
+        );
+    }
 
-        // Renderizar app
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    // =============================================
+    // MODAL
+    // =============================================
+    function BookModal({ book, onClose }) {
+        if (!book) return null;
+        const [imgFailed, setImgFailed] = useState(false);
+        return (
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="modal-box" onClick={e => e.stopPropagation()}>
+                    <button className="modal-close" onClick={onClose}>✕</button>
+                    {imgFailed
+                        ? <div className="modal-cover-fallback">📚</div>
+                        : <img className="modal-cover" src={book.cover} alt={book.title} onError={() => setImgFailed(true)} />
+                    }
+                    <h3 className="modal-title">{book.title}</h3>
+                    <p className="modal-author">{book.author}</p>
+                    <div className="modal-divider" />
+                    {book.bookUrl ? (
+                        <a href={book.bookUrl} target="_blank" rel="noopener noreferrer" className="btn-access">
+                            ⬇️&nbsp; Baixe seu livro (PDF)
+                        </a>
+                    ) : (
+                        <div style={{textAlign:'center'}}>
+                            <div style={{background:'linear-gradient(135deg,rgba(245,158,11,0.12),rgba(217,119,6,0.12))',border:'2px solid #f59e0b',borderRadius:'14px',padding:'1rem 1.25rem',color:'#b45309',fontWeight:600,fontSize:'0.92rem',lineHeight:1.5}}>
+                                📚 Este livro ainda está sob direitos autorais e não possui PDF gratuito disponível. Procure em sua biblioteca local ou livraria!
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // =============================================
+    // APP
+    // =============================================
+    function App() {
+        const [appState, setAppState]         = useState('loading');
+        const [currentUser, setCurrentUser]   = useState(null);
+        const [showRegister, setShowRegister] = useState(false);
+        const [username, setUsername]         = useState('');
+        const [password, setPassword]         = useState('');
+        const [name, setName]                 = useState('');
+        const [email, setEmail]               = useState('');
+        const [confirmPassword, setConfirmPassword] = useState('');
+        const [error, setError]               = useState('');
+        const [success, setSuccess]           = useState('');
+        const [myBorrowed, setMyBorrowed]     = useState({});
+        const [globalBorrowed, setGlobalBorrowed] = useState({});
+        const [isSubmitting, setIsSubmitting] = useState(false);
+        const [modalBook, setModalBook]       = useState(null);
+        const unsubRef = useRef(null);
+
+        const startRealtime = () => {
+            if (unsubRef.current) unsubRef.current();
+            unsubRef.current = DB.listenAllBorrowed(map => setGlobalBorrowed(map));
+        };
+
+        useEffect(() => {
+            const saved = sessionStorage.getItem('biblioshare-session');
+            if (saved) {
+                try {
+                    const session = JSON.parse(saved);
+                    DB.getUser(session.username).then(user => {
+                        if (user) {
+                            setCurrentUser({ id: user.id, username: user.username, name: user.name });
+                            setMyBorrowed(user.borrowedBooks || {});
+                            setAppState('app');
+                            startRealtime();
+                        } else {
+                            sessionStorage.removeItem('biblioshare-session');
+                            setAppState('login');
+                        }
+                    }).catch(() => { setCurrentUser(session); setAppState('app'); });
+                } catch { setAppState('login'); }
+            } else { setAppState('login'); }
+            return () => { if (unsubRef.current) unsubRef.current(); };
+        }, []);
+
+        const handleLogin = async (e) => {
+            e.preventDefault(); setError(''); setSuccess('');
+            if (!username || !password) { setError('❌ Preencha usuário e senha!'); return; }
+            setIsSubmitting(true);
+            try {
+                const user = await DB.getUser(username);
+                if (!user) { setError('❌ Usuário não encontrado! Cadastre-se primeiro.'); return; }
+                if (user.password !== password) { setError('❌ Senha incorreta!'); return; }
+                const session = { id: user.id, username: user.username, name: user.name };
+                sessionStorage.setItem('biblioshare-session', JSON.stringify(session));
+                setCurrentUser(session); setMyBorrowed(user.borrowedBooks || {});
+                setAppState('app'); startRealtime();
+            } catch { setError('❌ Erro ao conectar. Verifique sua internet.'); }
+            finally { setIsSubmitting(false); }
+        };
+
+        const handleRegister = async (e) => {
+            e.preventDefault(); setError(''); setSuccess('');
+            if (!name || !email || !username || !password || !confirmPassword) { setError('❌ Preencha todos os campos!'); return; }
+            if (!email.includes('@')) { setError('❌ Email inválido!'); return; }
+            if (password.length < 6) { setError('❌ Senha deve ter no mínimo 6 caracteres!'); return; }
+            if (password !== confirmPassword) { setError('❌ As senhas não coincidem!'); return; }
+            setIsSubmitting(true);
+            try {
+                if (await DB.getUser(username)) { setError('❌ Este usuário já existe!'); return; }
+                if (await DB.emailExists(email)) { setError('❌ Este email já está cadastrado!'); return; }
+                await DB.createUser({ name, email, username, password });
+                setSuccess('✅ Conta criada com sucesso! Faça login.');
+                setShowRegister(false);
+                setName(''); setEmail(''); setUsername(''); setPassword(''); setConfirmPassword('');
+            } catch { setError('❌ Erro ao criar conta. Tente novamente.'); }
+            finally { setIsSubmitting(false); }
+        };
+
+        const handleLogout = () => {
+            if (unsubRef.current) unsubRef.current();
+            sessionStorage.removeItem('biblioshare-session');
+            setCurrentUser(null); setMyBorrowed({}); setGlobalBorrowed({});
+            setUsername(''); setPassword(''); setAppState('login');
+        };
+
+        const handleBorrow = async (book) => {
+            if (globalBorrowed[book.id]) return;
+            const updated = { ...myBorrowed, [book.id]: true };
+            setMyBorrowed(updated);
+            if (currentUser?.id) { try { await DB.saveBorrowed(currentUser.id, updated); } catch {} }
+            setModalBook(book);
+        };
+
+        const handleReturn = async (bookId) => {
+            const updated = { ...myBorrowed };
+            delete updated[bookId];
+            setMyBorrowed(updated);
+            if (currentUser?.id) { try { await DB.saveBorrowed(currentUser.id, updated); } catch {} }
+        };
+
+        const getBookState = (bookId) => {
+            if (myBorrowed[bookId]) return 'mine';
+            if (globalBorrowed[bookId]) return 'taken';
+            return 'available';
+        };
+
+        const renderCategory = (key, title, subtitle, books) => (
+            <div className="category-section" key={key}>
+                <div className="category-header">
+                    <h2 className="category-title">{title}</h2>
+                    <p className="category-subtitle">{subtitle}</p>
+                </div>
+                <div className="books-grid">
+                    {books.map(book => {
+                        const state = getBookState(book.id);
+                        const takenBy = globalBorrowed[book.id];
+                        return (
+                            <div key={book.id} className={`book-card${state === 'taken' ? ' unavailable' : ''}`}>
+                                <div style={{position:'relative'}}>
+                                    <BookCover src={book.cover} title={book.title} height={380} />
+                                    {state === 'taken' && <div className="cover-ribbon">Indisponível</div>}
+                                </div>
+                                <div className="book-info">
+                                    <h3 className="book-title">{book.title}</h3>
+                                    <p className="book-author">{book.author}</p>
+                                    {state === 'available' && (
+                                        <div className="book-status status-available">
+                                            <span className="status-dot status-dot-green"></span>Disponível
+                                        </div>
+                                    )}
+                                    {state === 'mine' && (
+                                        <div className="book-status status-mine">
+                                            <span className="status-dot status-dot-purple"></span>Emprestado por mim
+                                        </div>
+                                    )}
+                                    {state === 'taken' && (
+                                        <>
+                                            <div className="book-status status-taken">
+                                                <span className="status-dot status-dot-orange"></span>Indisponível
+                                            </div>
+                                            <div className="borrowed-by">
+                                                <span>👤</span> Com <strong>{takenBy?.name || takenBy?.username}</strong>
+                                            </div>
+                                        </>
+                                    )}
+                                    <div className="book-actions">
+                                        {state === 'mine' && (
+                                            <>
+                                                <button className="btn-read" onClick={() => setModalBook(book)}>📖 Ler Livro</button>
+                                                <button className="btn-return" onClick={() => handleReturn(book.id)}>↩️ Devolver</button>
+                                            </>
+                                        )}
+                                        {state === 'available' && (
+                                            <button className="btn-borrow" onClick={() => handleBorrow(book)}>📚 Emprestar</button>
+                                        )}
+                                        {state === 'taken' && (
+                                            <button className="btn-disabled-book" disabled>🔒 Indisponível no momento</button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+
+        if (appState === 'loading') return (
+            <div className="loading-screen">
+                <div className="loading-spinner"></div>
+                <div className="loading-text">📚 Carregando BiblioShare...</div>
+            </div>
+        );
+
+        if (appState === 'login') return (
+            <div className="login-screen">
+                <div className="login-box">
+                    <div className="login-logo">
+                        <div className="login-logo-icon">📚</div>
+                        <h1 className="login-title">BiblioShare</h1>
+                    </div>
+                    <p className="login-subtitle">Sistema de Empréstimo de Livros</p>
+                    <div style={{textAlign:'center'}}>
+                        <span className="db-badge"><span className="db-badge-dot"></span>Banco de dados online ☁️</span>
+                    </div>
+                    <br/>
+                    {error && <div className="error-message">{error}</div>}
+                    {success && <div className="success-message">{success}</div>}
+                    {!showRegister ? (
+                        <form onSubmit={handleLogin}>
+                            <div className="form-group"><label className="form-label">👤 Usuário</label><input type="text" className="form-input" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Digite seu usuário" /></div>
+                            <div className="form-group"><label className="form-label">🔒 Senha</label><input type="password" className="form-input" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Digite sua senha" /></div>
+                            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? '⏳ Entrando...' : 'Entrar'}</button>
+                            <div className="toggle-form">Não tem conta? <button type="button" onClick={()=>{setShowRegister(true);setError('');setSuccess('');}}>Cadastre-se agora</button></div>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleRegister}>
+                            <div className="form-group"><label className="form-label">✨ Nome Completo</label><input type="text" className="form-input" value={name} onChange={e=>setName(e.target.value)} placeholder="Seu nome completo" /></div>
+                            <div className="form-group"><label className="form-label">📧 Email</label><input type="email" className="form-input" value={email} onChange={e=>setEmail(e.target.value)} placeholder="seu@email.com" /></div>
+                            <div className="form-group"><label className="form-label">👤 Usuário</label><input type="text" className="form-input" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Escolha um usuário" /></div>
+                            <div className="form-group"><label className="form-label">🔒 Senha</label><input type="password" className="form-input" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" /><div className="form-hint">Mínimo 6 caracteres</div></div>
+                            <div className="form-group"><label className="form-label">🔒 Confirmar Senha</label><input type="password" className="form-input" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="Digite a senha novamente" /></div>
+                            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? '⏳ Criando conta...' : '🚀 Criar Conta'}</button>
+                            <div className="toggle-form">Já tem conta? <button type="button" onClick={()=>{setShowRegister(false);setError('');setSuccess('');}}>Fazer login</button></div>
+                        </form>
+                    )}
+                </div>
+            </div>
+        );
+
+        return (
+            <>
+                {modalBook && <BookModal book={modalBook} onClose={() => setModalBook(null)} />}
+                <header>
+                    <div className="container">
+                        <div className="header-content">
+                            <div className="logo">📚 BiblioShare</div>
+                            <div className="user-info">
+                                <span className="user-name">Olá, {currentUser?.name || currentUser?.username}! 👋</span>
+                                <button className="btn-logout" onClick={handleLogout}>Sair</button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <div className="container">
+                    <div className="hero">
+                        <h1>Biblioteca Virtual Completa</h1>
+                        <p>24 livros incríveis disponíveis para leitura</p>
+                    </div>
+                    {renderCategory('infantil', '📚 Livros Infantis', 'Aventuras mágicas para os pequenos leitores', BOOKS_DATA.infantil)}
+                    {renderCategory('feminino', '💖 Romances e Ficção Feminina', 'Histórias envolventes de amor, amizade e superação', BOOKS_DATA.feminino)}
+                    {renderCategory('bestsellers', '🏆 Bestsellers e Desenvolvimento', 'Os mais vendidos e livros de crescimento pessoal', BOOKS_DATA.bestsellers)}
+                </div>
+                <footer>
+                    <div className="container">
+                        <div className="footer-content">
+                            <div className="footer-devs">👨‍💻 Desenvolvido por:</div>
+                            <div className="footer-names">Yuri, Vitor, Mari e Felipe</div>
+                            <a href="mailto:yurieggers16@gmail.com" className="footer-email">
+                                <div className="email-icon">@</div>yurieggers16@gmail.com
+                            </a>
+                            <div className="footer-copyright">BiblioShare © 2026 • Feito com ❤️ para amantes de livros</div>
+                        </div>
+                    </div>
+                </footer>
+            </>
+        );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
 </body>
 </html>
