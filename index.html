@@ -671,12 +671,17 @@
                 setLoading(false); return;
             }
 
-            // Validar URL da capa
-            const capaValida = /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif|JPG|JPEG|PNG|WEBP)(\?.*)?$/.test(capaUrl) ||
-                               /^https?:\/\/(m\.media-amazon|images-na\.ssl-images-amazon|i\.gr-assets|encrypted-tbn|images\.gr-assets|cdn\.|img\.)/.test(capaUrl) ||
-                               /^https?:\/\/.{10,}/.test(capaUrl);
+            // Validar URL da capa tentando carregar a imagem
+            setStatus({ type: 'validating', msg: '🖼️ Verificando imagem da capa...' });
+            const capaValida = await new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = capaUrl;
+                setTimeout(() => resolve(false), 8000);
+            });
             if (!capaValida) {
-                setStatus({ type: 'error', msg: '❌ URL da capa inválida. Deve começar com http:// ou https://' });
+                setStatus({ type: 'error', msg: '❌ Não foi possível carregar a imagem da capa. Verifique a URL.' });
                 setLoading(false); return;
             }
 
