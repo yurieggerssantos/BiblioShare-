@@ -33,6 +33,140 @@
         @keyframes modalIn { 0%{opacity:0;transform:scale(0.85) translateY(20px)} 100%{opacity:1;transform:scale(1) translateY(0)} }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
         @keyframes blink { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.15);opacity:0.7} }
+        /* ===== MODO ESCURO ===== */
+        body.dark-mode {
+            --bg: #0f0f1a; --card-bg: #1a1a2e; --text: #e8e8f0;
+            --text-light: #9999bb; --border: #2a2a4a;
+        }
+        body.dark-mode .book-card { background: #1a1a2e; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+        body.dark-mode header { background: #0a0a15; border-bottom: 1px solid #2a2a4a; }
+        body.dark-mode .hero { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+        body.dark-mode .category-section { background: transparent; }
+        body.dark-mode .modal-box { background: #1a1a2e; color: #e8e8f0; }
+        body.dark-mode .login-box { background: rgba(26,26,46,0.97); color: #e8e8f0; }
+        body.dark-mode .form-input { background: #0f0f1a; border-color: #2a2a4a; color: #e8e8f0; }
+        body.dark-mode .book-title { color: #e8e8f0; }
+        body.dark-mode .book-author { color: #9999bb; }
+        body.dark-mode .book-cover-fallback { background: #2a2a4a; }
+        body.dark-mode footer { background: #0a0a15; }
+
+        .dark-toggle {
+
+        /* ===== QUIZ ===== */
+        /* ===== POPUP BASE (igual BookModal) ===== */
+        .popup-overlay { position:fixed; inset:0; background:rgba(8,8,24,0.78); backdrop-filter:blur(8px) saturate(180%); -webkit-backdrop-filter:blur(8px) saturate(180%); z-index:1000; display:flex; align-items:center; justify-content:center; padding:1rem; animation:fadeIn 0.2s ease; }
+        .popup-box { background:#ffffff; border-radius:28px; width:100%; box-shadow:0 32px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.9); animation:modalIn 0.42s cubic-bezier(0.34,1.56,0.64,1); position:relative; overflow:hidden; }
+        .popup-box::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#667eea,#764ba2,#f093fb,#e94560,#667eea); background-size:300%; animation:shimmer 4s linear infinite; border-radius:28px 28px 0 0; z-index:3; }
+        @keyframes shimmer { 0%{background-position:0%} 100%{background-position:300%} }
+        body.dark-mode .popup-box { background:#13102a; border:1px solid rgba(102,126,234,0.22); box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(102,126,234,0.15); }
+
+        /* ===== QUIZ ===== */
+        .quiz-box { max-width:540px; padding:2.8rem 2.6rem 2.4rem; }
+        .quiz-close { position:absolute; top:1.2rem; right:1.2rem; width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.05); border:1.5px solid rgba(0,0,0,0.08); font-size:0.88rem; cursor:pointer; color:#999; display:flex; align-items:center; justify-content:center; transition:all 0.22s; font-weight:700; z-index:4; }
+        .quiz-close:hover { background:#fff0f2; border-color:#ffb3c0; color:#e94560; transform:rotate(90deg) scale(1.12); }
+        body.dark-mode .quiz-close { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); color:#888; }
+        body.dark-mode .quiz-close:hover { background:rgba(233,69,96,0.15); border-color:#e94560; color:#ff6b8a; }
+        .quiz-icon { width:58px; height:58px; border-radius:20px; background:linear-gradient(135deg,#667eea,#f093fb); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:1.1rem; box-shadow:0 10px 28px rgba(102,126,234,0.42); }
+        .quiz-title { font-family:'Crimson Pro',serif; font-size:2rem; font-weight:700; margin-bottom:0.2rem; color:#1a1a2e; }
+        body.dark-mode .quiz-title { color:#f0eeff; }
+        .quiz-subtitle { color:#9595ae; margin-bottom:1.8rem; font-size:0.92rem; }
+        .quiz-progress { display:flex; gap:0.4rem; margin-bottom:0.5rem; }
+        .quiz-progress-dot { flex:1; height:3px; border-radius:99px; background:rgba(102,126,234,0.12); transition:all 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .quiz-progress-dot.active { background:linear-gradient(90deg,#667eea,#f093fb); box-shadow:0 1px 6px rgba(102,126,234,0.5); }
+        .quiz-step-label { font-size:0.74rem; font-weight:600; color:#aaa; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.9rem; }
+        .quiz-question { font-size:1.12rem; font-weight:700; margin-bottom:1.1rem; color:#1a1a2e; line-height:1.5; }
+        body.dark-mode .quiz-question { color:#e8e4ff; }
+        .quiz-options { display:flex; flex-direction:column; gap:0.55rem; }
+        .quiz-option { padding:0.92rem 1.15rem; border:1.5px solid #ede8ff; border-radius:14px; cursor:pointer; font-size:0.94rem; font-weight:500; transition:all 0.2s cubic-bezier(0.4,0,0.2,1); background:#faf9ff; text-align:left; color:#2c2c4e; display:flex; align-items:center; gap:0.75rem; }
+        body.dark-mode .quiz-option { background:#1c1838; border-color:#2e2a55; color:#d4d0f5; }
+        .quiz-option:hover { border-color:#9b8eff; background:linear-gradient(135deg,#f0edff,#fce8ff); transform:translateX(6px); box-shadow:0 4px 16px rgba(102,126,234,0.18); color:#4a3fcf; }
+        body.dark-mode .quiz-option:hover { border-color:#7c6fe0; background:#251f48; color:#c4b5fd; }
+        .quiz-option-dot { width:7px; height:7px; border-radius:50%; background:linear-gradient(135deg,#667eea,#f093fb); flex-shrink:0; opacity:0; transition:opacity 0.2s, transform 0.2s; transform:scale(0); }
+        .quiz-option:hover .quiz-option-dot { opacity:1; transform:scale(1); }
+
+        /* Resultado */
+        .quiz-result { text-align:center; }
+        .quiz-result-trophy { font-size:3.5rem; margin-bottom:0.5rem; animation:float 3s ease-in-out infinite; display:block; }
+        .quiz-result-title { font-family:'Crimson Pro',serif; font-size:1.65rem; font-weight:700; margin-bottom:0.25rem; color:#1a1a2e; }
+        body.dark-mode .quiz-result-title { color:#f0eeff; }
+        .quiz-result-subtitle { color:#9999b3; font-size:0.87rem; margin-bottom:1.4rem; }
+        .quiz-result-books { display:flex; flex-direction:column; gap:0.65rem; margin-bottom:1.5rem; }
+        .quiz-result-book { display:flex; align-items:center; gap:0.9rem; padding:0.88rem 1.1rem; background:linear-gradient(135deg,#f8f5ff,#fff5fe); border-radius:16px; border:1.5px solid #e8e0ff; cursor:pointer; transition:all 0.22s; text-align:left; }
+        body.dark-mode .quiz-result-book { background:linear-gradient(135deg,#1c1838,#1f1535); border-color:#2e2a55; }
+        .quiz-result-book:hover { background:linear-gradient(135deg,#ede8ff,#fce4ff); transform:translateX(5px); box-shadow:0 6px 20px rgba(102,126,234,0.22); border-color:#b49ef5; }
+        body.dark-mode .quiz-result-book:hover { background:linear-gradient(135deg,#251f48,#2a1a45); border-color:#7c6fe0; }
+        .quiz-result-book-rank { font-size:1.4rem; flex-shrink:0; }
+        .quiz-result-book-cover { width:44px; height:60px; object-fit:cover; border-radius:8px; flex-shrink:0; box-shadow:0 4px 12px rgba(0,0,0,0.18); }
+        .quiz-result-book-info { flex:1; }
+        .quiz-result-book-title { font-weight:700; font-size:0.95rem; color:#1a1a2e; margin-bottom:0.15rem; }
+        body.dark-mode .quiz-result-book-title { color:#e8e4ff; }
+        .quiz-result-book-author { font-size:0.8rem; color:#9999b3; }
+        .quiz-result-book-arrow { color:#b49ef5; font-size:1.15rem; font-weight:700; transition:transform 0.2s; }
+        .quiz-result-book:hover .quiz-result-book-arrow { transform:translateX(3px); }
+
+        /* Botões do quiz */
+        .quiz-btn-primary { width:100%; padding:0.92rem; background:linear-gradient(135deg,#667eea,#764ba2,#f093fb); background-size:200%; color:white; border:none; border-radius:16px; font-size:0.96rem; font-weight:700; cursor:pointer; transition:all 0.35s; box-shadow:0 6px 20px rgba(102,126,234,0.38); letter-spacing:0.3px; }
+        .quiz-btn-primary:hover { background-position:right; transform:translateY(-2px); box-shadow:0 10px 28px rgba(102,126,234,0.55); }
+        .quiz-btn-secondary { width:100%; padding:0.78rem; background:transparent; border:1.5px solid #e0d8ff; color:#8878d8; border-radius:16px; font-size:0.9rem; font-weight:600; cursor:pointer; transition:all 0.2s; margin-top:0.6rem; }
+        .quiz-btn-secondary:hover { background:#f8f5ff; border-color:#b49ef5; color:#6655cc; }
+        body.dark-mode .quiz-btn-secondary { border-color:#2e2a55; color:#9988ee; }
+        body.dark-mode .quiz-btn-secondary:hover { background:#1c1838; border-color:#7c6fe0; color:#c4b5fd; }
+
+        /* ===== RESUMO IA ===== */
+        .ai-box { max-width:600px; max-height:88vh; overflow-y:auto; }
+        .ai-inner { padding:2.8rem 2.6rem 2.4rem; }
+        .ai-close { position:absolute; top:1.2rem; right:1.2rem; width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.05); border:1.5px solid rgba(0,0,0,0.08); font-size:0.88rem; cursor:pointer; color:#999; display:flex; align-items:center; justify-content:center; transition:all 0.22s; font-weight:700; z-index:4; }
+        .ai-close:hover { background:#fff0f2; border-color:#ffb3c0; color:#e94560; transform:rotate(90deg) scale(1.12); }
+        body.dark-mode .ai-close { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); color:#888; }
+        body.dark-mode .ai-close:hover { background:rgba(233,69,96,0.15); border-color:#e94560; color:#ff6b8a; }
+        .ai-header { display:flex; align-items:center; gap:1.2rem; margin-bottom:1.5rem; }
+        .ai-book-cover { width:68px; height:95px; object-fit:cover; border-radius:12px; flex-shrink:0; box-shadow:0 10px 28px rgba(0,0,0,0.28); }
+        .ai-book-cover-fallback { width:68px; height:95px; background:linear-gradient(135deg,#667eea,#f093fb); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:2rem; flex-shrink:0; box-shadow:0 10px 28px rgba(102,126,234,0.35); }
+        .ai-book-title { font-family:'Crimson Pro',serif; font-size:1.5rem; font-weight:700; color:#1a1a2e; line-height:1.2; margin-bottom:0.3rem; }
+        body.dark-mode .ai-book-title { color:#f0eeff; }
+        .ai-book-author { color:#9595ae; font-size:0.88rem; }
+        .ai-badge { display:inline-flex; align-items:center; gap:0.35rem; background:linear-gradient(135deg,#667eea,#f093fb); color:white; padding:0.3rem 0.88rem; border-radius:99px; font-size:0.72rem; font-weight:700; margin-bottom:1.3rem; letter-spacing:0.05em; box-shadow:0 4px 14px rgba(102,126,234,0.35); }
+        .ai-loading { display:flex; flex-direction:column; align-items:center; gap:1.1rem; padding:2.5rem 1rem; }
+        .ai-loading-icon { font-size:2.8rem; animation:float 2s ease-in-out infinite; }
+        .ai-loading-text { font-size:0.92rem; font-weight:500; color:#9595ae; }
+        .ai-loading-bar { width:100%; height:4px; background:rgba(102,126,234,0.1); border-radius:99px; overflow:hidden; }
+        body.dark-mode .ai-loading-bar { background:#2a2455; }
+        .ai-loading-fill { height:100%; background:linear-gradient(90deg,#667eea,#f093fb,#667eea); background-size:200%; border-radius:99px; animation:aiLoad 1.6s ease-in-out infinite; }
+        @keyframes aiLoad { 0%{background-position:0%;width:20%} 50%{background-position:100%;width:80%} 100%{background-position:0%;width:20%} }
+        .ai-content { line-height:1.8; font-size:0.95rem; }
+        .ai-section { margin-bottom:1.3rem; }
+        .ai-section-label { font-weight:700; color:#7c6fe0; margin-bottom:0.6rem; font-size:0.76rem; text-transform:uppercase; letter-spacing:0.08em; }
+        .ai-resumo-text { font-size:0.96rem; line-height:1.78; color:#3a3a5c; }
+        body.dark-mode .ai-resumo-text { color:#c8c5e8; }
+        .ai-stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin:1.2rem 0; }
+        .ai-stat { background:#f8f5ff; border:1.5px solid #ede8ff; padding:0.9rem 1rem; border-radius:14px; }
+        body.dark-mode .ai-stat { background:#1c1838; border-color:#2e2a55; }
+        .ai-stat-label { font-size:0.71rem; font-weight:700; color:#9b8eff; text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.25rem; }
+        .ai-stat-value { font-size:0.93rem; font-weight:600; color:#2c2c4e; }
+        body.dark-mode .ai-stat-value { color:#d4d0f5; }
+        .ai-quote { background:linear-gradient(135deg,#f8f5ff,#fef5ff); border-left:3px solid #9b8eff; padding:1.1rem 1.3rem; border-radius:0 16px 16px 0; font-style:italic; font-size:0.94rem; color:#4a3f7e; line-height:1.7; }
+        body.dark-mode .ai-quote { color:#c4b5fd; background:linear-gradient(135deg,#1c1838,#1f1535); border-left-color:#7c6fe0; }
+
+        /* Botão IA no card */
+        .btn-ai { width:100%; padding:0.7rem 1rem; background:white; border:1.5px solid #e8e0ff; border-radius:12px; color:#7c6fe0; font-size:0.84rem; font-weight:700; cursor:pointer; transition:all 0.25s cubic-bezier(0.4,0,0.2,1); margin-top:0.55rem; display:flex; align-items:center; justify-content:center; gap:0.4rem; letter-spacing:0.2px; box-shadow:0 2px 8px rgba(102,126,234,0.1); }
+        .btn-ai:hover { background:linear-gradient(135deg,#f0edff,#fce4ff); border-color:#b49ef5; transform:translateY(-2px); box-shadow:0 6px 18px rgba(102,126,234,0.22); color:#5a4fcf; }
+        .btn-ai:active { transform:translateY(0); }
+        body.dark-mode .btn-ai { background:#1a1440; border-color:#3a2e6e; color:#a89cf5; box-shadow:none; }
+        body.dark-mode .btn-ai:hover { background:#231960; border-color:#6b5ce7; color:#c4b5fd; }
+
+        /* Botão quiz no hero */
+        .btn-quiz { display:inline-flex; align-items:center; gap:0.6rem; margin-top:1.4rem; padding:1rem 2.4rem; background:linear-gradient(135deg,#667eea,#764ba2,#f093fb); background-size:200% 200%; color:white; border:none; border-radius:50px; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.4s ease; box-shadow:0 6px 24px rgba(102,126,234,0.45); letter-spacing:0.3px; animation:pulseQuiz 3s ease-in-out infinite; }
+        @keyframes pulseQuiz { 0%,100%{box-shadow:0 6px 24px rgba(102,126,234,0.45)} 50%{box-shadow:0 8px 32px rgba(102,126,234,0.65), 0 0 0 6px rgba(102,126,234,0.12)} }
+        .btn-quiz:hover { background-position:right center; transform:translateY(-3px) scale(1.04); box-shadow:0 12px 36px rgba(102,126,234,0.6); animation:none; }
+        .btn-quiz:active { transform:translateY(-1px) scale(1); }
+
+            background: none; border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50px; padding: 0.4rem 0.9rem;
+            cursor: pointer; font-size: 1rem; transition: all 0.3s;
+            color: white; display: flex; align-items: center; gap: 0.4rem;
+        }
+        .dark-toggle:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.6); }
+
 
         .loading-screen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(135deg,#667eea,#764ba2,#f093fb); color:white; gap:1.5rem; }
         .loading-spinner { width:60px; height:60px; border:5px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.8s linear infinite; }
@@ -152,13 +286,20 @@
         .borrowed-by { font-size:0.8rem; color:var(--text-light); margin-bottom:0.9rem; display:flex; align-items:center; gap:0.4rem; }
 
         .book-actions { display:flex; flex-direction:column; gap:0.6rem; }
-        .btn-borrow, .btn-return, .btn-read, .btn-disabled-book { padding:0.9rem 1.5rem; border:none; border-radius:14px; font-weight:700; cursor:pointer; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); font-family:'Inter',sans-serif; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.5px; }
-        .btn-borrow { background:linear-gradient(135deg,var(--success),#04b386); color:white; box-shadow:0 6px 20px rgba(6,214,160,0.3); }
-        .btn-borrow:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(6,214,160,0.4); }
-        .btn-read { background:linear-gradient(135deg,var(--purple),#764ba2); color:white; box-shadow:0 6px 20px rgba(102,126,234,0.3); }
-        .btn-read:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(102,126,234,0.4); }
-        .btn-return { background:linear-gradient(135deg,var(--accent),var(--accent-light)); color:white; box-shadow:0 6px 20px rgba(233,69,96,0.3); }
-        .btn-return:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(233,69,96,0.4); }
+        .btn-borrow, .btn-return, .btn-read, .btn-disabled-book { width:100%; padding:0.85rem 1rem; border:none; border-radius:14px; font-weight:700; cursor:pointer; transition:all 0.3s cubic-bezier(0.4,0,0.2,1); font-family:'Inter',sans-serif; font-size:0.9rem; letter-spacing:0.3px; display:flex; align-items:center; justify-content:center; gap:0.45rem; position:relative; overflow:hidden; }
+        .btn-borrow, .btn-return, .btn-read { }
+        .btn-borrow, .btn-return, .btn-read { }
+        .btn-borrow::after, .btn-return::after, .btn-read::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0); transition:background 0.2s; }
+        .btn-borrow:hover::after, .btn-return:hover::after, .btn-read:hover::after { background:rgba(255,255,255,0.12); }
+        .btn-borrow { background:linear-gradient(135deg,#06d6a0,#00b386); color:white; box-shadow:0 4px 16px rgba(6,214,160,0.35); }
+        .btn-borrow:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(6,214,160,0.5); }
+        .btn-borrow:active { transform:translateY(0); }
+        .btn-read { background:linear-gradient(135deg,#667eea,#764ba2); color:white; box-shadow:0 4px 16px rgba(102,126,234,0.35); }
+        .btn-read:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(102,126,234,0.5); }
+        .btn-return { background:linear-gradient(135deg,#f093fb,#e94560); color:white; box-shadow:0 4px 16px rgba(233,69,96,0.3); }
+        .btn-return:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(233,69,96,0.45); }
+        .btn-disabled-book { background:rgba(0,0,0,0.06); color:var(--text-light); cursor:not-allowed; box-shadow:none; }
+        body.dark-mode .btn-disabled-book { background:rgba(255,255,255,0.06); }
         .btn-disabled-book { background:linear-gradient(135deg,#d1d5db,#9ca3af); color:white; cursor:not-allowed; opacity:0.75; }
 
         .modal-overlay { position:fixed; inset:0; background:rgba(10,10,20,0.78); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:1.5rem; animation:fadeIn 0.2s ease; }
@@ -198,106 +339,179 @@
 <div id="root"></div>
 
 <script>
-    // Firebase REST API com proxy CORS para funcionar no Neocities
+    // ============================================================
+    // FIREBASE FIRESTORE REST API — COMPATÍVEL COM GITHUB PAGES
+    // ============================================================
     const FB_PROJECT = 'biblioshare-61f23';
     const FB_KEY     = 'AIzaSyCbbCBP6gT19_7F3mkthPoBDWnnv98XU_Q';
-    const FB_BASE    = `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents`;
-    const PROXY      = 'https://corsproxy.io/?url=';
+    const FB_BASE    = 'https://firestore.googleapis.com/v1/projects/' + FB_PROJECT + '/databases/(default)/documents';
 
-    function proxify(url) {
-        return PROXY + encodeURIComponent(url);
+    // Proxies CORS em ordem de tentativa
+    const CORS_PROXIES = [
+        function(u){ return 'https://corsproxy.io/?url=' + encodeURIComponent(u); },
+        function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
+        function(u){ return 'https://corsproxy.org/?' + encodeURIComponent(u); },
+    ];
+
+    // Faz fetch tentando direto e depois cada proxy
+    async function fbFetch(url, options) {
+        options = options || {};
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+        const opts = Object.assign({}, options, { headers: headers });
+
+        // Direto (funciona se o Firebase tiver CORS liberado pra esse domínio)
+        try {
+            const r = await fetch(url, opts);
+            if (r.status !== 0) return r;
+        } catch(e) {}
+
+        // Cada proxy
+        for (let i = 0; i < CORS_PROXIES.length; i++) {
+            try {
+                const r = await fetch(CORS_PROXIES[i](url), opts);
+                if (r.status !== 0) return r;
+            } catch(e) {}
+        }
+
+        throw new Error('Não foi possível conectar ao servidor. Verifique sua internet.');
     }
 
-    // Converte valor JS → formato Firestore REST
+    // Lê e parseia JSON de uma Response com segurança
+    async function readJSON(r) {
+        const text = await r.text();
+        if (!text || text.trim() === '') return {};
+        try { return JSON.parse(text); }
+        catch(e) { throw new Error('Resposta inválida do servidor (não é JSON). Status: ' + r.status); }
+    }
+
+    // ---- Conversores JS <-> Firestore Value ----
     function toFV(val) {
         if (val === null || val === undefined) return { nullValue: null };
-        if (typeof val === 'boolean') return { booleanValue: val };
-        if (typeof val === 'number') return { integerValue: String(val) };
+        if (typeof val === 'boolean')          return { booleanValue: val };
+        if (typeof val === 'number')           return Number.isInteger(val) ? { integerValue: String(val) } : { doubleValue: val };
+        if (Array.isArray(val))                return { arrayValue: { values: val.map(toFV) } };
         if (typeof val === 'object') {
             const fields = {};
-            for (const k in val) fields[k] = toFV(val[k]);
-            return { mapValue: { fields } };
+            for (var k in val) if (Object.prototype.hasOwnProperty.call(val, k)) fields[k] = toFV(val[k]);
+            return { mapValue: { fields: fields } };
         }
         return { stringValue: String(val) };
     }
 
-    // Converte valor Firestore REST → JS
     function fromFV(fv) {
         if (!fv) return null;
-        if ('stringValue'  in fv) return fv.stringValue;
-        if ('integerValue' in fv) return Number(fv.integerValue);
-        if ('booleanValue' in fv) return fv.booleanValue;
         if ('nullValue'    in fv) return null;
+        if ('booleanValue' in fv) return fv.booleanValue;
+        if ('integerValue' in fv) return Number(fv.integerValue);
+        if ('doubleValue'  in fv) return fv.doubleValue;
+        if ('stringValue'  in fv) return fv.stringValue;
+        if ('arrayValue'   in fv) return ((fv.arrayValue && fv.arrayValue.values) || []).map(fromFV);
         if ('mapValue'     in fv) {
-            const obj = {};
-            for (const k in (fv.mapValue.fields || {}))
-                obj[k] = fromFV(fv.mapValue.fields[k]);
+            var obj = {};
+            var fields = (fv.mapValue && fv.mapValue.fields) || {};
+            for (var k in fields) if (Object.prototype.hasOwnProperty.call(fields, k)) obj[k] = fromFV(fields[k]);
             return obj;
         }
-        if ('arrayValue'   in fv) return (fv.arrayValue.values || []).map(fromFV);
         return null;
     }
 
-    // Converte documento Firestore REST → objeto JS
     function docToObj(doc) {
         if (!doc || !doc.fields) return null;
-        const obj = {};
-        for (const k in doc.fields) obj[k] = fromFV(doc.fields[k]);
-        obj._docId = (doc.name || '').split('/').pop(); // ID real do documento Firebase
-        if (!obj.id) obj.id = obj._docId;
+        var obj = {};
+        for (var k in doc.fields) if (Object.prototype.hasOwnProperty.call(doc.fields, k)) obj[k] = fromFV(doc.fields[k]);
+        obj._docId = (doc.name || '').split('/').pop();
+        obj.id = obj._docId;
         return obj;
     }
 
+    function objToFields(obj) {
+        var fields = {};
+        for (var k in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, k) && k !== 'id' && k !== '_docId') {
+                fields[k] = toFV(obj[k]);
+            }
+        }
+        return fields;
+    }
+
+    // ---- API pública ----
     window.FBDB = {
-        // Busca todos os documentos de uma coleção
+
         async getAll(collection) {
-            const r = await fetch(proxify(`${FB_BASE}/${collection}?key=${FB_KEY}`));
-            const data = await r.json();
+            var url = FB_BASE + '/' + collection + '?key=' + FB_KEY;
+            var r = await fbFetch(url);
+            var data = await readJSON(r);
+            if (data.error) throw new Error('Firebase: ' + (data.error.message || JSON.stringify(data.error)));
             if (!data.documents) return [];
-            return data.documents.map(docToObj);
+            return data.documents.map(docToObj).filter(Boolean);
         },
-        // Cria um documento novo
+
+        async getDoc(collection, docId) {
+            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY;
+            var r = await fbFetch(url);
+            if (r.status === 404) return null;
+            var data = await readJSON(r);
+            if (data.error) return null;
+            return docToObj(data);
+        },
+
         async add(collection, obj) {
-            const fields = {};
-            for (const k in obj) if (k !== 'id') fields[k] = toFV(obj[k]);
-            const r = await fetch(proxify(`${FB_BASE}/${collection}?key=${FB_KEY}`), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fields })
-            });
-            const data = await r.json();
-            if (!r.ok) throw new Error(data.error?.message || 'Erro ao criar documento');
+            var url = FB_BASE + '/' + collection + '?key=' + FB_KEY;
+            var body = JSON.stringify({ fields: objToFields(obj) });
+            var r = await fbFetch(url, { method: 'POST', body: body });
+            var data = await readJSON(r);
+            if (!r.ok || data.error) throw new Error('Firebase add: ' + ((data.error && data.error.message) || r.status));
             return (data.name || '').split('/').pop();
         },
-        // Atualiza campos de um documento existente
+
+        async set(collection, docId, obj) {
+            // Cria ou sobrescreve completamente um documento com ID conhecido
+            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY;
+            var body = JSON.stringify({ fields: objToFields(obj) });
+            var r = await fbFetch(url, { method: 'PATCH', body: body });
+            var data = await readJSON(r);
+            if (!r.ok || data.error) throw new Error('Firebase set: ' + ((data.error && data.error.message) || r.status));
+        },
+
         async update(collection, docId, obj) {
-            const fields = {};
-            for (const k in obj) if (k !== 'id') fields[k] = toFV(obj[k]);
-            const fieldMask = Object.keys(obj).filter(k => k !== 'id').map(k => `updateMask.fieldPaths=${k}`).join('&');
-            const r = await fetch(proxify(`${FB_BASE}/${collection}/${docId}?key=${FB_KEY}&${fieldMask}`), {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fields })
-            });
-            if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || 'Erro ao atualizar'); }
+            var keys = Object.keys(obj).filter(function(k){ return k !== 'id' && k !== '_docId'; });
+            var fieldMask = keys.map(function(k){ return 'updateMask.fieldPaths=' + encodeURIComponent(k); }).join('&');
+            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY + '&' + fieldMask;
+            var body = JSON.stringify({ fields: objToFields(obj) });
+            var r = await fbFetch(url, { method: 'PATCH', body: body });
+            if (!r.ok) {
+                var data = await readJSON(r);
+                throw new Error('Firebase update: ' + ((data.error && data.error.message) || r.status));
+            }
         },
-        // Escuta mudanças em tempo real (polling a cada 5s)
-        listenAll(collection, callback) {
-            let active = true;
-            const poll = async () => {
-                if (!active) return;
-                try { callback(await this.getAll(collection)); } catch {}
-                if (active) setTimeout(poll, 5000);
-            };
-            poll();
-            return () => { active = false; };
-        },
-        // Deleta um documento
+
         async delete(collection, docId) {
-            const r = await fetch(proxify(`${FB_BASE}/${collection}/${docId}?key=${FB_KEY}`), {
-                method: 'DELETE'
-            });
-            if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || 'Erro ao deletar'); }
+            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY;
+            var r = await fbFetch(url, { method: 'DELETE' });
+            if (!r.ok) {
+                var data = await readJSON(r);
+                throw new Error('Firebase delete: ' + ((data.error && data.error.message) || r.status));
+            }
+        },
+
+        // Polling com exponential backoff
+        listenAll(collection, callback) {
+            var self = this;
+            var active = true;
+            var delay = 6000;
+            var run = async function() {
+                if (!active) return;
+                try {
+                    var docs = await self.getAll(collection);
+                    callback(docs);
+                    delay = 6000;
+                } catch(e) {
+                    delay = Math.min(delay * 2, 30000);
+                }
+                if (active) setTimeout(run, delay);
+            };
+            run();
+            return function(){ active = false; };
         }
     };
 </script>
@@ -330,6 +544,30 @@
       'O Homem Mais Rico da Babilônia': 'https://images-na.ssl-images-amazon.com/images/I/81ehX6Quw2L._AC_UL900_SR615,900_.jpg',
       'Mindset': 'https://m.media-amazon.com/images/I/71Ils+Co9fL.jpg',
       'Dom Quixote': 'https://m.media-amazon.com/images/I/81pdXbEIZhL._UF1000,1000_QL80_.jpg',
+      'A Marca de uma Lágrima': 'https://m.media-amazon.com/images/I/61vmtzpmu8L._AC_UF1000,1000_QL80_.jpg',
+      'O Mágico de Oz': 'https://m.media-amazon.com/images/I/91cUKFkOBsL._AC_UF1000,1000_QL80_.jpg',
+      'Extraordinário': 'https://m.media-amazon.com/images/I/71I3OkYQI7L._UF1000,1000_QL80_.jpg',
+      'A Cabana': 'https://m.media-amazon.com/images/I/71ydFW-qgQL._AC_UF1000,1000_QL80_.jpg',
+      'Jogos Vorazes': 'https://images.dlivros.org/Suzanne-Collins/jogos-vorazes-ilustrado-suzanne-collins_large.webp',
+      'O Senhor dos Anéis': 'https://m.media-amazon.com/images/I/81KGUQ+PMgL._AC_UF1000,1000_QL80_.jpg',
+      'A Menina que Roubava Livros': 'https://cdn.kobo.com/book-images/82db2aae-2164-4a21-a785-70a53d2b6de3/353/569/90/False/a-menina-que-roubava-livros.jpg',
+      'A Biblioteca da Meia-Noite': 'https://m.media-amazon.com/images/I/51redg0moFL._AC_UF1000,1000_QL80_.jpg',
+      'Frankenstein': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJP_IiH2gtqczgoCExaSAW_XYyREmHGlebpQ&s',
+      'O Retrato de Dorian Gray': 'https://m.media-amazon.com/images/I/A1bYc7NWsPL._AC_UF1000,1000_QL80_.jpg',
+      'A Seleção': 'https://cdl-static.s3-sa-east-1.amazonaws.com/covers/gg/9788565765015/a-selecao.jpg',
+      'Corte de Espinhos e Rosas': 'https://m.media-amazon.com/images/I/81aQ-osTBXL.jpg',
+      'O Cortiço': 'https://m.media-amazon.com/images/I/8153IdR+NyL._AC_UF1000,1000_QL80_.jpg',
+      'O Conde de Monte Cristo': 'https://m.media-amazon.com/images/I/81ZswN9PVPL._AC_UF1000,1000_QL80_.jpg',
+      'Crime e Castigo': 'https://m.media-amazon.com/images/I/71Gmavgu3ZL.jpg',
+      'It - A Coisa': 'https://m.media-amazon.com/images/I/91g9Dvtf+jL.jpg',
+      'Sapiens': 'https://m.media-amazon.com/images/I/81BTkpMrLYL.jpg',
+      'A Arte da Guerra': 'https://m.media-amazon.com/images/I/71FMCr5Z9rL.jpg',
+      'Como Fazer Amigos e Influenciar Pessoas': 'https://0.academia-photos.com/attachment_thumbnails/110574608/mini_magick20240118-1-mfems0.png?1705567532',
+      'Pai Rico, Pai Pobre': 'https://m.media-amazon.com/images/I/71V4lNR2gKL.jpg',
+      'O Poder do Agora': 'https://m.media-amazon.com/images/I/71sh8JtiZbL._AC_UF1000,1000_QL80_.jpg',
+      'A Moreninha': 'https://m.media-amazon.com/images/I/61Q6vZZzTML._AC_UF1000,1000_QL80_.jpg',
+      'A Divina Comédia': 'https://www.lpm.com.br/livros/imagens/a_divina_comedia_16x23__9786556664941_hd.jpg',
+      'Memórias de um Sargento de Milícias': 'https://m.media-amazon.com/images/I/71MebPfNmQL._AC_UF1000,1000_QL80_.jpg',
     };
 
     function DynamicCover({ isbn, title, height = 380, className = '' }) {
@@ -403,6 +641,48 @@
                 author: 'José de Alencar',
                 cover: OL('9788572079488'),
                 bookUrl: 'https://arquivo.pandabooks.com.br/classicos/lt_iracema.pdf'
+            },
+            {
+                id: 109,
+                title: 'A Marca de uma Lágrima',
+                author: 'Pedro Bandeira',
+                cover: OL('9788508035779'),
+                bookUrl: 'https://www.deibambinicoc.com.br/2020/atividades/456ANO/A%20marca%20de%20uma%20lagrima%20-%20Pedro%20Bandeira.pdf'
+            },
+            {
+                id: 110,
+                title: 'O Mágico de Oz',
+                author: 'L. Frank Baum',
+                cover: OL('9788578277314'),
+                bookUrl: 'https://archive.org/download/o-ma-gico-de-oz/o-ma-gico-de-oz.pdf'
+            },
+            {
+                id: 111,
+                title: 'Extraordinário',
+                author: 'R.J. Palacio',
+                cover: OL('9788501403810'),
+                bookUrl: 'https://bibliotecadigital.puc-campinas.edu.br/services/e-books/RJ-Palacio-Extraordinario.pdf'
+            },
+            {
+                id: 112,
+                title: 'A Cabana',
+                author: 'William P. Young',
+                cover: OL('9788578271275'),
+                bookUrl: 'https://portalinterle.com.br/wp-content/uploads/2019/04/A-Cabana.pdf'
+            },
+            {
+                id: 113,
+                title: 'Jogos Vorazes',
+                author: 'Suzanne Collins',
+                cover: OL('9788576572244'),
+                bookUrl: 'https://aestantedavida.files.wordpress.com/2014/09/jogos-vorazes-livro-01.pdf'
+            },
+            {
+                id: 114,
+                title: 'O Senhor dos Anéis',
+                author: 'J.R.R. Tolkien',
+                cover: OL('9788533613379'),
+                bookUrl: 'https://bibliotecadigital.puc-campinas.edu.br/services/e-books/Tolkien-Senhor-dos-Aneis.pdf'
             }
         ],
         feminino: [
@@ -418,7 +698,7 @@
                 title: 'Vermelho, Branco e Sangue Azul',
                 author: 'Casey McQuiston',
                 cover: OL('9788501119162'),
-                bookUrl: 'https://leitoracompulsiva.com.br/wp-content/uploads/Vermelho-branco-e-sangue-azul-Casey-McQuiston.pdf'
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/Vermelho-Branco-e-Sangue-Azul.pdf'
             },
             {
                 id: 203,
@@ -461,6 +741,48 @@
                 author: 'William Shakespeare',
                 cover: OL('9788525411761'),
                 bookUrl: 'https://sanderlei.com.br/PDF/William-Shakespeare/William-Shakespeare-Romeu-e-Julieta.pdf'
+            },
+            {
+                id: 209,
+                title: 'A Menina que Roubava Livros',
+                author: 'Markus Zusak',
+                cover: OL('9788501085054'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/A-Menina-que-Roubava-Livros.pdf'
+            },
+            {
+                id: 210,
+                title: 'A Biblioteca da Meia-Noite',
+                author: 'Matt Haig',
+                cover: OL('9786555360394'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2022/01/A-Biblioteca-da-Meia-Noite.pdf'
+            },
+            {
+                id: 211,
+                title: 'Frankenstein',
+                author: 'Mary Shelley',
+                cover: OL('9788525430496'),
+                bookUrl: 'https://www.agr-tc.pt/bibliotecadigital/aetc/download/565/Frankenstein%20-%20Mary%20Shelley.pdf'
+            },
+            {
+                id: 212,
+                title: 'O Retrato de Dorian Gray',
+                author: 'Oscar Wilde',
+                cover: OL('9788525430977'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/O-Cortico.pdf'
+            },
+            {
+                id: 213,
+                title: 'A Seleção',
+                author: 'Kiera Cass',
+                cover: OL('9788580416015'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/A-Selecao.pdf'
+            },
+            {
+                id: 214,
+                title: 'Corte de Espinhos e Rosas',
+                author: 'Sarah J. Maas',
+                cover: OL('9788501119803'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2020/01/Corte-de-Espinhos-e-Rosas.pdf'
             }
         ],
         bestsellers: [
@@ -519,6 +841,90 @@
                 author: 'Miguel de Cervantes',
                 cover: OL('9788535909388'),
                 bookUrl: 'https://www.paulus.com.br/assistencia-social/wp-content/uploads/2015/10/o-fidalgo-dom-quixote_miolo.pdf'
+            },
+            {
+                id: 309,
+                title: 'O Cortiço',
+                author: 'Aluísio Azevedo',
+                cover: OL('9788572328159'),
+                bookUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000064.pdf'
+            },
+            {
+                id: 310,
+                title: 'O Conde de Monte Cristo',
+                author: 'Alexandre Dumas',
+                cover: OL('9788572327282'),
+                bookUrl: 'https://sanderlei.com.br/PDF/Alexandre-Dumas/Alexandre-Dumas-O-Conde-de-Monte-Cristo.pdf'
+            },
+            {
+                id: 311,
+                title: 'Crime e Castigo',
+                author: 'Fiódor Dostoiévski',
+                cover: OL('9788535922905'),
+                bookUrl: 'https://bibliotecadigital.puc-campinas.edu.br/services/e-books/Fiodor%20Dostoievski-1.pdf'
+            },
+            {
+                id: 312,
+                title: 'It - A Coisa',
+                author: 'Stephen King',
+                cover: OL('9788556510266'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2020/01/It-a-Coisa.pdf'
+            },
+            {
+                id: 313,
+                title: 'Sapiens',
+                author: 'Yuval Noah Harari',
+                cover: OL('9788535928099'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/Sapiens.pdf'
+            },
+            {
+                id: 314,
+                title: 'A Arte da Guerra',
+                author: 'Sun Tzu',
+                cover: OL('9788576840800'),
+                bookUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000358.pdf'
+            },
+            {
+                id: 315,
+                title: 'Como Fazer Amigos e Influenciar Pessoas',
+                author: 'Dale Carnegie',
+                cover: OL('9788504018028'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/Como-Fazer-Amigos-e-Influenciar-Pessoas.pdf'
+            },
+            {
+                id: 316,
+                title: 'Pai Rico, Pai Pobre',
+                author: 'Robert Kiyosaki',
+                cover: OL('9788595084735'),
+                bookUrl: 'https://esotti.com/wp-content/uploads/2024/07/pai-rico-pai-pobre-ediao-de-20.pdf'
+            },
+            {
+                id: 317,
+                title: 'O Poder do Agora',
+                author: 'Eckhart Tolle',
+                cover: OL('9788532522528'),
+                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/O-Poder-do-Agora.pdf'
+            },
+            {
+                id: 318,
+                title: 'A Moreninha',
+                author: 'Joaquim Manuel de Macedo',
+                cover: OL('9788572329507'),
+                bookUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000150.pdf'
+            },
+            {
+                id: 319,
+                title: 'A Divina Comédia',
+                author: 'Dante Alighieri',
+                cover: OL('9788535908183'),
+                bookUrl: 'http://www.dominiopublico.gov.br/download/texto/eb000015.pdf'
+            },
+            {
+                id: 320,
+                title: 'Memórias de um Sargento de Milícias',
+                author: 'Manuel Antônio de Almeida',
+                cover: OL('9788572326322'),
+                bookUrl: 'http://www.dominiopublico.gov.br/download/texto/bv000115.pdf'
             }
         ]
     };
@@ -527,43 +933,55 @@
     // FIREBASE HELPERS
     // =============================================
     const DB = {
+        // Busca usuário por username (case-insensitive)
         async getUser(username) {
             const users = await window.FBDB.getAll('users');
-            return users.find(u => (u.username || '').toLowerCase() === username.toLowerCase()) || null;
+            const u = users.find(u => (u.username || '').toLowerCase() === username.toLowerCase().trim());
+            if (!u) return null;
+            return u; // _docId e id já vêm preenchidos do docToObj
         },
+
+        // Verifica se email já existe
         async emailExists(email) {
             const users = await window.FBDB.getAll('users');
-            return users.some(u => (u.email || '').toLowerCase() === email.toLowerCase());
+            return users.some(u => (u.email || '').toLowerCase() === email.toLowerCase().trim());
         },
+
+        // Cria novo usuário — borrowedBooks como objeto vazio
         async createUser(data) {
-            return await window.FBDB.add('users', { ...data, borrowedBooks: {} });
+            const payload = Object.assign({}, data, { borrowedBooks: {} });
+            const docId = await window.FBDB.add('users', payload);
+            return docId;
         },
+
+        // Salva livros emprestados do usuário
         async saveBorrowed(userId, borrowedBooks) {
-            await window.FBDB.update('users', userId, { borrowedBooks });
+            if (!userId) return;
+            // borrowedBooks é { [bookId]: true } — serializa como mapValue
+            await window.FBDB.update('users', userId, { borrowedBooks: borrowedBooks || {} });
         },
+
+        // Escuta todos os empréstimos (não mais necessário pra bloquear, mas mantido)
         listenAllBorrowed(callback) {
             return window.FBDB.listenAll('users', (users) => {
                 const map = {};
                 users.forEach(u => {
-                    Object.keys(u.borrowedBooks || {}).forEach(bookId => {
-                        if (u.borrowedBooks[bookId]) {
-                            map[bookId] = { username: u.username, name: u.name || u.username };
-                        }
+                    const bb = u.borrowedBooks || {};
+                    Object.keys(bb).forEach(bookId => {
+                        if (bb[bookId]) map[bookId] = { username: u.username, name: u.name || u.username };
                     });
                 });
                 callback(map);
             });
         },
-        async addBook(book) {
-            return await window.FBDB.add('livros', book);
-        },
+
         async deleteBook(docId) {
             await window.FBDB.delete('livros', docId);
         },
+
         listenBooks(callback) {
             return window.FBDB.listenAll('livros', livros => {
-                // Garantir que todos os livros da coleção 'livros' tenham _extra=true
-                callback(livros.map(l => ({ ...l, _extra: true })));
+                callback(livros.map(l => Object.assign({}, l, { _extra: true })));
             });
         }
     };
@@ -624,7 +1042,337 @@
     // =============================================
 
     // =============================================
-    // MODAL ADICIONAR LIVRO
+    // DARK MODE AUTOMÁTICO
+    // =============================================
+    function useDarkMode() {
+        const getAuto = () => {
+            const h = new Date().getHours();
+            return h >= 19 || h < 7;
+        };
+        const saved = localStorage.getItem('biblioshare-darkmode');
+        const [dark, setDark] = useState(saved !== null ? saved === 'true' : getAuto());
+
+        useEffect(() => {
+            document.body.classList.toggle('dark-mode', dark);
+            localStorage.setItem('biblioshare-darkmode', dark);
+        }, [dark]);
+
+        return [dark, setDark];
+    }
+
+    // =============================================
+    // QUIZ DE RECOMENDAÇÃO
+    // =============================================
+    const ALL_BOOKS = [
+        ...BOOKS_DATA.infantil,
+        ...BOOKS_DATA.feminino,
+        ...BOOKS_DATA.bestsellers
+    ];
+
+    const QUIZ_QUESTIONS = [
+        {
+            q: '😊 Como você está se sentindo agora?',
+            options: [
+                { text: '🔥 Com energia, quero aventura!',     tags: ['aventura','acao'] },
+                { text: '💆 Relaxado, quero algo leve',         tags: ['leve','romance'] },
+                { text: '🧠 Curioso, quero aprender algo',      tags: ['educativo','reflexao'] },
+                { text: '😢 Emotivo, quero me emocionar',        tags: ['emocional','drama'] },
+            ]
+        },
+        {
+            q: '🌍 Que tipo de mundo você quer explorar?',
+            options: [
+                { text: '🏰 Mundos fantásticos e mágicos',      tags: ['fantasia','aventura'] },
+                { text: '❤️ Histórias de amor reais',           tags: ['romance','emocional'] },
+                { text: '📖 A vida como ela é (realismo)',       tags: ['classico','drama'] },
+                { text: '🧩 Mistério e suspense',               tags: ['suspense','acao'] },
+            ]
+        },
+        {
+            q: '⏱️ Quanto tempo você tem para ler?',
+            options: [
+                { text: '📱 Pouco — quero algo curto',          tags: ['curto','leve'] },
+                { text: '📚 Tenho tempo, pode ser longo',       tags: ['longo','aventura','classico'] },
+                { text: '⚡ Quero que seja difícil parar',      tags: ['acao','suspense'] },
+                { text: '🛋️ Vou ler aos poucos, sem pressa',   tags: ['reflexao','educativo'] },
+            ]
+        },
+        {
+            q: '🎭 O que você quer sentir ao terminar?',
+            options: [
+                { text: '😂 Leve e feliz',                       tags: ['leve','romance'] },
+                { text: '🤯 Com a cabeça cheia de ideias',       tags: ['educativo','reflexao'] },
+                { text: '😭 Emocionado, com o coração apertado', tags: ['emocional','drama'] },
+                { text: '💪 Inspirado e motivado',              tags: ['educativo','motivacao'] },
+            ]
+        },
+        {
+            q: '🧑 Com qual personagem você se identifica mais?',
+            options: [
+                { text: '🦸 O herói que enfrenta tudo',          tags: ['aventura','acao'] },
+                { text: '💘 O apaixonado que dá tudo pelo amor', tags: ['romance','emocional'] },
+                { text: '🎓 O estudioso que busca respostas',    tags: ['educativo','classico'] },
+                { text: '🕵️ O detetive que resolve mistérios',  tags: ['suspense','acao'] },
+            ]
+        }
+    ];
+
+    const BOOK_TAGS = {
+        'O Pequeno Príncipe':                   ['leve','reflexao','curto','emocional'],
+        'Harry Potter e a Pedra Filosofal':     ['fantasia','aventura','longo'],
+        'O Menino Maluquinho':                  ['leve','curto','infantil'],
+        'A Fantástica Fábrica de Chocolate':    ['fantasia','aventura','leve'],
+        'Vidas Secas':                          ['classico','drama','curto'],
+        'Percy Jackson e o Ladrão de Raios':    ['fantasia','aventura','acao'],
+        'A Metamorfose':                        ['classico','reflexao','curto'],
+        'Iracema':                              ['classico','romance','curto'],
+        'A Marca de uma Lágrima':               ['aventura','emocional','leve'],
+        'O Mágico de Oz':                       ['fantasia','aventura','leve'],
+        'Extraordinário':                       ['emocional','drama','motivacao'],
+        'A Cabana':                             ['emocional','reflexao','drama'],
+        'Jogos Vorazes':                        ['acao','aventura','suspense'],
+        'O Senhor dos Anéis':                   ['fantasia','aventura','longo'],
+        'A Revolução dos Bichos':               ['classico','reflexao','curto'],
+        'Vermelho, Branco e Sangue Azul':       ['romance','leve','emocional'],
+        '1984':                                 ['classico','reflexao','suspense'],
+        'O Guarani':                            ['classico','romance','aventura'],
+        'Dom Casmurro':                         ['classico','drama','romance'],
+        'Orgulho e Preconceito':                ['classico','romance','leve'],
+        'O Alquimista':                         ['reflexao','motivacao','leve'],
+        'Romeu e Julieta':                      ['classico','romance','drama','curto'],
+        'A Menina que Roubava Livros':          ['drama','emocional','classico'],
+        'A Biblioteca da Meia-Noite':           ['reflexao','emocional','leve'],
+        'Frankenstein':                         ['classico','suspense','reflexao'],
+        'O Retrato de Dorian Gray':             ['classico','suspense','drama'],
+        'A Seleção':                            ['romance','aventura','leve'],
+        'Corte de Espinhos e Rosas':            ['fantasia','romance','aventura'],
+        'A Culpa é das Estrelas':               ['emocional','drama','romance'],
+        'Memórias Póstumas de Brás Cubas':      ['classico','reflexao','drama'],
+        'Anne de Green Gables':                 ['classico','leve','emocional'],
+        'Torto Arado':                          ['drama','reflexao','classico'],
+        'Hábitos Atômicos':                     ['educativo','motivacao','reflexao'],
+        'O Homem Mais Rico da Babilônia':       ['educativo','motivacao','curto'],
+        'Mindset':                              ['educativo','motivacao','reflexao'],
+        'Dom Quixote':                          ['classico','aventura','longo'],
+        'O Cortiço':                            ['classico','drama','reflexao'],
+        'O Conde de Monte Cristo':              ['aventura','suspense','acao','longo'],
+        'Crime e Castigo':                      ['classico','drama','suspense'],
+        'It - A Coisa':                         ['suspense','acao','longo'],
+        'Sapiens':                              ['educativo','reflexao','longo'],
+        'A Arte da Guerra':                     ['educativo','motivacao','curto'],
+        'Como Fazer Amigos e Influenciar Pessoas': ['educativo','motivacao'],
+        'Pai Rico, Pai Pobre':                  ['educativo','motivacao'],
+        'O Poder do Agora':                     ['reflexao','motivacao','educativo'],
+        'A Moreninha':                          ['classico','romance','curto'],
+        'A Divina Comédia':                     ['classico','reflexao','longo'],
+        'Memórias de um Sargento de Milícias':  ['classico','leve','drama'],
+    };
+
+    function QuizModal({ onClose, onSelectBook }) {
+        const [step, setStep] = useState(0);
+        const [scores, setScores] = useState({});
+        const [result, setResult] = useState(null);
+
+        const handleOption = (tags) => {
+            const newScores = { ...scores };
+            tags.forEach(t => newScores[t] = (newScores[t] || 0) + 1);
+            setScores(newScores);
+            if (step + 1 >= QUIZ_QUESTIONS.length) {
+                // Calcular resultado
+                const ranked = ALL_BOOKS.map(book => {
+                    const bookTags = BOOK_TAGS[book.title] || [];
+                    const score = bookTags.reduce((acc, t) => acc + (newScores[t] || 0), 0);
+                    return { ...book, _score: score };
+                }).sort((a, b) => b._score - a._score);
+                setResult(ranked.slice(0, 3));
+            } else {
+                setStep(step + 1);
+            }
+        };
+
+        return (
+            <div className="popup-overlay" onClick={onClose}>
+                <div className="popup-box quiz-box" onClick={e => e.stopPropagation()}>
+                    <button className="quiz-close" onClick={onClose}>✕</button>
+                    {!result ? (
+                        <>
+                            <div className="quiz-icon">🎯</div>
+                            <div className="quiz-title">Qual livro é pra você?</div>
+                            <div className="quiz-subtitle">Responda {QUIZ_QUESTIONS.length} perguntas rápidas e descubra</div>
+                            <div className="quiz-progress">
+                                {QUIZ_QUESTIONS.map((_, i) => (
+                                    <div key={i} className={`quiz-progress-dot ${i <= step ? 'active' : ''}`} />
+                                ))}
+                            </div>
+                            <div className="quiz-step-label">Pergunta {step + 1} de {QUIZ_QUESTIONS.length}</div>
+                            <div className="quiz-question">{QUIZ_QUESTIONS[step].q}</div>
+                            <div className="quiz-options">
+                                {QUIZ_QUESTIONS[step].options.map((opt, i) => (
+                                    <button key={i} className="quiz-option" onClick={() => handleOption(opt.tags)}>
+                                        <span className="quiz-option-dot" />
+                                        {opt.text}
+                                    </button>
+                                ))}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="quiz-result">
+                            <div className="quiz-result-trophy">🎉</div>
+                            <div className="quiz-result-title">Seus livros ideais são:</div>
+                            <div className="quiz-result-subtitle">Clique num livro para abrir e ler</div>
+                            <div className="quiz-result-books">
+                                {result.map((book, i) => (
+                                    <div key={book.id} className="quiz-result-book" onClick={() => { onSelectBook(book); onClose(); }}>
+                                        <span className="quiz-result-book-rank">{['🥇','🥈','🥉'][i]}</span>
+                                        <img className="quiz-result-book-cover" src={COVERS[book.title] || book.cover} alt={book.title} onError={e => e.target.style.display='none'} />
+                                        <div className="quiz-result-book-info">
+                                            <div className="quiz-result-book-title">{book.title}</div>
+                                            <div className="quiz-result-book-author">{book.author}</div>
+                                        </div>
+                                        <span className="quiz-result-book-arrow">›</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <button className="quiz-btn-primary" onClick={onClose}>Ir para a biblioteca 📚</button>
+                            <button className="quiz-btn-secondary" onClick={() => { setStep(0); setScores({}); setResult(null); }}>Refazer o quiz 🔄</button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // =============================================
+    // RESUMO IA
+    // =============================================
+    const AI_SUMMARIES = {
+        'O Pequeno Príncipe': { resumo: 'Um piloto preso no deserto encontra um menino misterioso vindo de outro planeta. Juntos eles exploram questões profundas sobre amor, solidão, responsabilidade e o que realmente importa na vida.', genero: 'Fábula Filosófica', paginas: '96', dificuldade: '⭐⭐', humor: '🥺 Nostálgico', frase: '"O essencial é invisível para os olhos."' },
+        'Harry Potter e a Pedra Filosofal': { resumo: 'Um menino descobre que é um bruxo e ingressa em Hogwarts, a escola de magia. Lá faz amigos, descobre seu passado e enfrenta o mal que o persegue desde bebê — numa aventura cheia de magia, mistério e amizade.', genero: 'Fantasia', paginas: '232', dificuldade: '⭐⭐', humor: '🧙 Mágico', frase: '"A verdade é uma coisa bela e terrível que deve ser tratada com cuidado."' },
+        'Vidas Secas': { resumo: 'Fabiano, Sinhá Vitória e seus dois filhos fogem da seca no sertão nordestino em busca de sobrevivência. Um retrato brutal e poético da vida dos excluídos no Brasil, narrado de forma inovadora, inclusive pela perspectiva de uma cachorra.', genero: 'Romance Regionalista', paginas: '176', dificuldade: '⭐⭐⭐', humor: '😔 Intenso', frase: '"Vivia no meio de pessoas e contudo estava sempre só."' },
+        'Percy Jackson e o Ladrão de Raios': { resumo: 'Percy descobre ser filho de Posêidon e que o raio mestre de Zeus foi roubado. Junto com seus amigos, ele viaja pelos EUA numa corrida contra o tempo para impedir uma guerra entre os deuses do Olimpo.', genero: 'Fantasia / Mitologia', paginas: '377', dificuldade: '⭐⭐', humor: '⚡ Eletrizante', frase: '"Ser um herói não significa ser invencível. Significa nunca desistir."' },
+        'A Metamorfose': { resumo: 'Gregor Samsa acorda transformado em um enorme inseto. A história acompanha o impacto dessa transformação na sua família — uma metáfora poderosa sobre alienação, trabalho e o quanto somos valorizados pelo que produzimos.', genero: 'Ficção Absurdista', paginas: '112', dificuldade: '⭐⭐⭐', humor: '😰 Perturbador', frase: '"Será que sou um animal porque me deixo sensibilizar pela música?"' },
+        'Jogos Vorazes': { resumo: 'Em um futuro distópico, Katniss se voluntaria no lugar da irmã para participar dos Jogos Vorazes — uma competição televisionada onde adolescentes se matam. Uma crítica afiada sobre poder, mídia e sobrevivência.', genero: 'Distopia / Aventura', paginas: '374', dificuldade: '⭐⭐', humor: '😤 Tenso', frase: '"Eu não quero perder a memória de quem eu sou."' },
+        'O Senhor dos Anéis': { resumo: 'O hobbit Frodo herda o Anel do Poder e precisa destruí-lo na Montanha da Perdição, único lugar capaz de acabar com o mal de Sauron. Uma jornada épica sobre amizade, coragem e o peso do poder.', genero: 'Alta Fantasia', paginas: '1137', dificuldade: '⭐⭐⭐⭐', humor: '🗡️ Épico', frase: '"Tudo que precisamos decidir é o que fazer com o tempo que nos é dado."' },
+        'A Revolução dos Bichos': { resumo: 'Os animais de uma fazenda se rebelam contra os humanos e criam uma sociedade igualitária — que logo é corrompida pelos porcos no poder. Uma sátira política genial sobre totalitarismo e traição dos ideais revolucionários.', genero: 'Fábula Política', paginas: '152', dificuldade: '⭐⭐', humor: '😡 Revelador', frase: '"Todos os animais são iguais, mas alguns são mais iguais que outros."' },
+        'Vermelho, Branco e Sangue Azul': { resumo: 'O filho da presidente dos EUA e o príncipe da Inglaterra se odeiam — até se apaixonarem. Uma comédia romântica política brilhante sobre amor, identidade e os bastidores do poder.', genero: 'Romance / Comédia', paginas: '421', dificuldade: '⭐', humor: '😂 Divertido', frase: '"Você me faz querer ser uma versão melhor de mim mesmo."' },
+        '1984': { resumo: 'Winston Smith vive sob o domínio total do Grande Irmão, onde o passado é reescrito e o pensamento é crime. Ao se apaixonar por Julia e questionar o regime, ele descobre o custo real da rebeldia contra um poder absoluto.', genero: 'Distopia', paginas: '328', dificuldade: '⭐⭐⭐', humor: '😨 Assustador', frase: '"A guerra é paz. A liberdade é escravidão. A ignorância é força."' },
+        'Dom Casmurro': { resumo: 'Bentinho, o Casmurro, narra sua vida e seu grande amor por Capitu — e a dúvida que o consome: ela o traiu? Um dos maiores enigmas da literatura brasileira, narrado por um narrador suspeito e apaixonante.', genero: 'Romance / Clássico Brasileiro', paginas: '256', dificuldade: '⭐⭐⭐', humor: '🤔 Enigmático', frase: '"Capitu olhava de baixo para cima, com os seus olhos de ressaca."' },
+        'Orgulho e Preconceito': { resumo: 'Elizabeth Bennet e o Sr. Darcy se enfrentam num duelo de orgulho, preconceito e mal-entendidos — até perceberem que se amam. Um dos maiores romances de todos os tempos, cheio de humor e crítica social.', genero: 'Romance Clássico', paginas: '432', dificuldade: '⭐⭐', humor: '😏 Irônico', frase: '"É uma verdade universalmente reconhecida que um homem solteiro e rico deve estar em busca de uma esposa."' },
+        'O Alquimista': { resumo: 'Santiago, um pastor andaluz, viaja pelo mundo em busca de seu tesouro pessoal, aprendendo que a jornada é mais valiosa que o destino. Um conto filosófico sobre sonhos, destino e a linguagem universal do universo.', genero: 'Ficção Filosófica', paginas: '208', dificuldade: '⭐', humor: '✨ Inspirador', frase: '"Quando você quer algo, todo o universo conspira para que você realize seu desejo."' },
+        'Romeu e Julieta': { resumo: 'O amor proibido entre dois jovens de famílias rivais em Verona termina em tragédia inevitável. Mais do que um romance, é uma crítica ao ódio entre famílias e às consequências fatais do orgulho.', genero: 'Tragédia / Clássico', paginas: '192', dificuldade: '⭐⭐', humor: '💔 Trágico', frase: '"O que há num nome? O que chamamos rosa, com qualquer nome que tivesse, cheiraria tão bem."' },
+        'A Culpa é das Estrelas': { resumo: 'Hazel e Gus se conhecem num grupo de apoio para jovens com câncer e se apaixonam. Uma história sobre amor, morte e como viver intensamente mesmo sabendo que o tempo é limitado.', genero: 'Drama / Romance YA', paginas: '313', dificuldade: '⭐', humor: '😭 Devastador', frase: '"Você não escolhe se vai se machucar nesse mundo. Mas você tem alguma palavra sobre quem te machuca."' },
+        'Memórias Póstumas de Brás Cubas': { resumo: 'Brás Cubas narra sua vida depois de morto, com cinismo e humor negro. O primeiro romance escrito por um defunto — uma obra revolucionária da literatura brasileira que critica a hipocrisia da elite do século XIX.', genero: 'Realismo / Clássico Brasileiro', paginas: '280', dificuldade: '⭐⭐⭐', humor: '😏 Sarcástico', frase: '"Ao verme que primeiro roeu as frias carnes do meu cadáver dedico com saudosa lembrança estas Memórias Póstumas."' },
+        'Anne de Green Gables': { resumo: 'Anne, uma órfã imaginativa e faladeira, é adotada por engano por um casal de irmãos idosos. Com seu jeito único e otimista, ela conquista todos ao redor e aprende o que é ter uma família de verdade.', genero: 'Clássico / Jovem Adulto', paginas: '368', dificuldade: '⭐', humor: '🌸 Reconfortante', frase: '"Amanhã é sempre um dia sem erros ainda."' },
+        'Torto Arado': { resumo: 'As irmãs Bibiana e Belonísia descobrem um segredo enterrado na terra que trabalham há gerações. Uma história sobre identidade negra, ancestralidade e resistência no sertão baiano — o maior romance brasileiro recente.', genero: 'Romance / Literatura Brasileira', paginas: '264', dificuldade: '⭐⭐⭐', humor: '🌱 Profundo', frase: '"Havia em mim algo que os outros não tinham: a faca."' },
+        'Hábitos Atômicos': { resumo: 'James Clear explica como pequenas mudanças de 1% no dia a dia criam transformações extraordinárias ao longo do tempo. Um guia prático e científico para construir bons hábitos e eliminar os ruins de vez.', genero: 'Autoajuda / Desenvolvimento Pessoal', paginas: '319', dificuldade: '⭐⭐', humor: '💡 Revelador', frase: '"Você não eleva ao nível dos seus objetivos. Você cai ao nível dos seus sistemas."' },
+        'O Homem Mais Rico da Babilônia': { resumo: 'Através de parábolas ambientadas na Babilônia antiga, o livro ensina princípios simples e atemporais de finanças pessoais — como guardar, investir e multiplicar dinheiro de forma inteligente.', genero: 'Finanças Pessoais', paginas: '186', dificuldade: '⭐', humor: '💰 Motivador', frase: '"Uma parte de tudo que você ganha é sua para ficar."' },
+        'Mindset': { resumo: 'Carol Dweck apresenta décadas de pesquisa mostrando que a diferença entre quem fracassa e quem tem sucesso está na mentalidade — fixada ou voltada para crescimento — e como você pode mudar a sua.', genero: 'Psicologia / Desenvolvimento Pessoal', paginas: '336', dificuldade: '⭐⭐', humor: '🧠 Esclarecedor', frase: '"O esforço é o que torna você inteligente ou talentoso."' },
+        'Dom Quixote': { resumo: 'Um nobre espanhol enlouquece de tanto ler livros de cavalaria e decide se tornar cavaleiro andante. Com seu fiel escudeiro Sancho Pança, vive aventuras absurdas e comoventes — numa obra que inventou o romance moderno.', genero: 'Clássico / Sátira', paginas: '1072', dificuldade: '⭐⭐⭐⭐', humor: '😄 Hilário', frase: '"Ladram, Sancho, é sinal que cavalgamos."' },
+        'A Marca de uma Lágrima': { resumo: 'Melissa é uma adolescente que esconde a insegurança atrás de arrogância — até que uma cicatriz no rosto muda tudo. Uma história sobre autoestima, beleza e descobrir que o que realmente importa está dentro de nós.', genero: 'Romance / Jovem Adulto', paginas: '160', dificuldade: '⭐', humor: '🥺 Tocante', frase: '"A beleza que não se vê é a que mais vale."' },
+        'O Mágico de Oz': { resumo: 'Dorothy é levada por um tornado para a terra mágica de Oz, onde precisa encontrar o feiticeiro para voltar para casa. Junto com um espantalho, um homem de lata e um leão, ela aprende que o poder sempre esteve dentro dela.', genero: 'Fantasia / Clássico', paginas: '215', dificuldade: '⭐', humor: '🌈 Mágico', frase: '"Não há lugar como o lar."' },
+        'Extraordinário': { resumo: 'Auggie Pullman nasce com uma deformidade facial e enfrenta seu primeiro ano na escola regular. Uma história emocionante sobre coragem, amizade e o que significa ser extraordinário — contada por vários pontos de vista.', genero: 'Ficção / Jovem Adulto', paginas: '315', dificuldade: '⭐', humor: '💛 Caloroso', frase: '"Quando tiver que escolher entre estar certo ou ser gentil, escolha ser gentil."' },
+        'A Cabana': { resumo: 'Mackenzie perde sua filha pequena num crime brutal e recebe uma carta misteriosa convidando-o para a cabana onde ela morreu. Uma jornada espiritual sobre perdão, dor e a natureza de Deus diante do sofrimento humano.', genero: 'Ficção Espiritual', paginas: '256', dificuldade: '⭐⭐', humor: '🕊️ Restaurador', frase: '"A dor tem um propósito — mesmo que você não consiga ver qual é."' },
+        'A Menina que Roubava Livros': { resumo: 'Liesel rouba livros na Alemanha nazista enquanto esconde um judeu no porão. Narrada pela Morte, é uma história sobre o poder das palavras para sobreviver ao horror da guerra.', genero: 'Drama Histórico', paginas: '554', dificuldade: '⭐⭐', humor: '💔 Arrasador', frase: '"As palavras são coisas. Elas entram em você facilmente, mas demoram para sair."' },
+        'A Biblioteca da Meia-Noite': { resumo: 'Nora Seed, prestes a se suicidar, descobre uma biblioteca entre a vida e a morte onde cada livro é uma vida diferente que ela poderia ter vivido. Uma exploração sobre arrependimento, possibilidades e o valor da vida que temos.', genero: 'Ficção Filosófica', paginas: '304', dificuldade: '⭐', humor: '🌟 Esperançoso', frase: '"A vida é como uma árvore — você nunca sabe para qual lado os galhos vão crescer."' },
+        'Frankenstein': { resumo: 'O cientista Victor Frankenstein cria vida a partir de partes de cadáveres, mas foge horrorizado de sua criação. A criatura, rejeitada por todos, busca amor e pertencimento — numa história sobre responsabilidade, rejeição e o que nos torna humanos.', genero: 'Ficção Científica / Terror', paginas: '280', dificuldade: '⭐⭐⭐', humor: '😱 Perturbador', frase: '"Aprendi a falar dos homens. Mas quanto mais os conheço, menos os quero ser."' },
+        'O Retrato de Dorian Gray': { resumo: 'Dorian Gray vende sua alma para que um retrato envelheça no lugar dele, enquanto ele permanece jovem e belo para sempre. Um conto sobre vaidade, corrupção moral e o preço de uma vida sem consequências.', genero: 'Romance / Fantasia Dark', paginas: '272', dificuldade: '⭐⭐⭐', humor: '🎭 Decadente', frase: '"Só há uma coisa pior do que ser comentado: não ser comentado."' },
+        'A Seleção': { resumo: 'America Singer é sorteada para competir pelo príncipe Maxon, mas está apaixonada por outro. Um romance de palácio cheio de intrigas, dilemas amorosos e a descoberta de que o amor verdadeiro pode surgir onde menos se espera.', genero: 'Romance / Distopia', paginas: '327', dificuldade: '⭐', humor: '👑 Glamouroso', frase: '"O amor não é algo que se planeja. Ele simplesmente acontece."' },
+        'Corte de Espinhos e Rosas': { resumo: 'Feyre caça para sobreviver e mata um lobo que era na verdade um fae. Levada ao mundo mágico das fadas como punição, ela descobre um amor proibido e uma maldição que precisa ser quebrada.', genero: 'Fantasia / Romance', paginas: '432', dificuldade: '⭐⭐', humor: '🌹 Intenso', frase: '"Amava-o de uma forma que não sabia ser possível — assustadora, selvagem e completamente real."' },
+        'O Cortiço': { resumo: 'A história do cortiço de João Romão, construído na exploração de trabalhadores pobres no Rio de Janeiro do século XIX. Um painel brutal das desigualdades brasileiras, com personagens inesquecíveis que vivem em coletividade caótica.', genero: 'Naturalismo / Clássico Brasileiro', paginas: '280', dificuldade: '⭐⭐⭐', humor: '😤 Visceral', frase: '"O cortiço acordava, como se sacudisse o sono e o torpor da noite."' },
+        'O Conde de Monte Cristo': { resumo: 'Edmond Dantès é preso injustamente e passa 14 anos numa masmorra. Após escapar com um tesouro imenso, ele retorna como o Conde de Monte Cristo para executar uma vingança meticulosa contra todos que o traíram.', genero: 'Aventura / Drama', paginas: '1276', dificuldade: '⭐⭐⭐', humor: '😤 Vingativo', frase: '"Esperar e esperançar."' },
+        'Crime e Castigo': { resumo: 'Raskólnikov, estudante em miséria, mata uma agiota acreditando que seria justificado. Mas o crime o corrói por dentro — um mergulho profundo na culpa, redenção e nas contradições da mente humana.', genero: 'Clássico Russo / Psicológico', paginas: '671', dificuldade: '⭐⭐⭐⭐', humor: '😰 Sufocante', frase: '"A dor e o sofrimento são sempre inevitáveis para uma consciência lúcida e um coração profundo."' },
+        'It - A Coisa': { resumo: 'Em Derry, um grupo de crianças enfrenta uma entidade maligna que se disfarça de palhaço e se alimenta do medo. Anos depois, adultos, precisam voltar para terminar o que começaram. Terror e amizade num épico do gênero.', genero: 'Terror / Drama', paginas: '1104', dificuldade: '⭐⭐⭐', humor: '😱 Aterrorizante', frase: '"Eles flutuam, Georgie. E quando você vier aqui baixo, você também flutuará."' },
+        'Sapiens': { resumo: 'Harari narra a história da humanidade desde o surgimento do Homo sapiens até hoje — como saímos de animais irrelevantes para dominar o planeta, e o que isso diz sobre nós. Uma leitura que muda sua visão do mundo.', genero: 'História / Não-ficção', paginas: '464', dificuldade: '⭐⭐', humor: '🤯 Revelador', frase: '"A história não é justa. Nós não somos o resultado do progresso — somos o resultado da sorte."' },
+        'A Arte da Guerra': { resumo: 'O general Sun Tzu escreveu há 2.500 anos os princípios do conflito, da estratégia e da vitória. Usado por líderes militares, empresariais e esportistas, é o livro de estratégia mais influente da história humana.', genero: 'Filosofia / Estratégia', paginas: '112', dificuldade: '⭐⭐', humor: '⚔️ Estratégico', frase: '"Conheça o inimigo e conheça a si mesmo; em cem batalhas você nunca estará em perigo."' },
+        'Como Fazer Amigos e Influenciar Pessoas': { resumo: 'Carnegie ensina com exemplos práticos como se comunicar melhor, fazer as pessoas gostarem de você e convencer sem imposição. Publicado em 1936, ainda é o guia de relacionamentos humanos mais vendido de todos os tempos.', genero: 'Autoajuda / Comunicação', paginas: '288', dificuldade: '⭐', humor: '🤝 Empoderador', frase: '"Sorria. É a coisa mais simples que você pode fazer para mudar sua vida social."' },
+        'Pai Rico, Pai Pobre': { resumo: 'Kiyosaki compara as mentalidades de seu pai pobre (formado mas sempre endividado) e do pai de seu amigo (rico e sem diploma). Uma virada de chave sobre como os ricos pensam diferente sobre dinheiro e ativos.', genero: 'Finanças / Desenvolvimento Pessoal', paginas: '336', dificuldade: '⭐', humor: '💵 Motivador', frase: '"Os ricos não trabalham por dinheiro. Fazem o dinheiro trabalhar por eles."' },
+        'O Poder do Agora': { resumo: 'Tolle explica que quase todo sofrimento humano vem de viver preso no passado ou futuro. Um guia prático para encontrar paz através da presença total no momento presente — que transformou milhões de vidas.', genero: 'Espiritualidade / Autoajuda', paginas: '256', dificuldade: '⭐⭐', humor: '🧘 Sereno', frase: '"O momento presente é o único momento em que você pode agir, crescer e se transformar."' },
+        'A Moreninha': { resumo: 'O primeiro romance brasileiro narra o amor entre o estudante Augusto e a misteriosa Moreninha numa ilha. Uma obra fundadora da nossa literatura, com charme, humor e muita leveza.', genero: 'Romance / Clássico Brasileiro', paginas: '192', dificuldade: '⭐⭐', humor: '🌺 Charmoso', frase: '"Amar é a mais bela das loucuras."' },
+        'A Divina Comédia': { resumo: 'Dante viaja pelo Inferno, Purgatório e Paraíso guiado pelo poeta Virgílio, num épico em versos sobre pecado, redenção e amor eterno por Beatrice. A maior obra da literatura medieval e uma das mais influentes da humanidade.', genero: 'Épico / Poesia / Clássico', paginas: '800', dificuldade: '⭐⭐⭐⭐⭐', humor: '✨ Transcendente', frase: '"Lasciate ogne speranza, voi ch\'intrate. (Abandonai toda esperança, vós que entrais.)"' },
+        'Memórias de um Sargento de Milícias': { resumo: 'Leonardo, filho de um sargento e uma quitandeira, cresce aprontando travessuras no Rio de Janeiro do século XIX. O primeiro romance a retratar o povo brasileiro com humor e sem moralismo, inaugurando o realismo no Brasil.', genero: 'Romance / Clássico Brasileiro', paginas: '224', dificuldade: '⭐⭐', humor: '😄 Divertido', frase: '"Leonardo era filho de uma pisadela e um beliscão."' },
+        'Iracema': { resumo: 'A guerreira Iracema, virgem dos lábios de mel, se apaixona pelo guerreiro branco Martim e trai seu povo por amor, gerando o primeiro cearense. Um poema em prosa belíssimo sobre o nascimento do Brasil mestiço.', genero: 'Romance / Poema em Prosa', paginas: '128', dificuldade: '⭐⭐', humor: '🌿 Lírico', frase: '"Iracema, a virgem dos lábios de mel, que tinha os cabelos mais negros que a asa da graúna."' },
+        'O Guarani': { resumo: 'O índio Peri, forte como uma rocha e fiel como um cão, dedica sua vida a proteger Ceci, filha de um fidalgo português. Uma épica história de amor impossível, coragem e o Brasil colonial.', genero: 'Romance / Indianismo', paginas: '352', dificuldade: '⭐⭐', humor: '🏹 Nobre', frase: '"O amor de Peri por Ceci era puro como a água da nascente."' },
+        'O Menino Maluquinho': { resumo: 'Um menino cheio de energia, imaginação e uma panela furada na cabeça vive aventuras com amigos, família e escola. Um retrato carinhoso da infância brasileira que encanta crianças e adultos há décadas.', genero: 'Literatura Infantil', paginas: '48', dificuldade: '⭐', humor: '😄 Alegre', frase: '"Tinha uma coisa em cima da cabeça que era a marca registrada do menino: uma panela velha e furada."' },
+        'A Fantástica Fábrica de Chocolate': { resumo: 'Charlie Bucket, pobre mas de bom coração, ganha um ingresso dourado para visitar a fábrica do excêntrico Willy Wonka — um lugar mágico e bizarro cheio de surpresas. Uma fábula divertida sobre caráter e imaginação.', genero: 'Fantasia / Infantil', paginas: '196', dificuldade: '⭐', humor: '🍫 Delicioso', frase: '"A imaginação é o único poder de que você precisa."' },
+    };
+
+    function AISummaryModal({ book, onClose }) {
+        const [loading, setLoading] = useState(true);
+        const [data, setData] = useState(null);
+
+        useEffect(() => {
+            const timer = setTimeout(() => {
+                setData(AI_SUMMARIES[book.title] || {
+                    resumo: 'Este é um livro incrível com uma história envolvente que vai prender sua atenção do início ao fim. Uma leitura altamente recomendada!',
+                    genero: 'Literatura', paginas: '—', dificuldade: '⭐⭐', humor: '📖 Envolvente', frase: '""'
+                });
+                setLoading(false);
+            }, 1800);
+            return () => clearTimeout(timer);
+        }, []);
+
+        const coverSrc = COVERS[book.title] || (book.cover && book.cover.startsWith('http') ? book.cover : null);
+
+        return (
+            <div className="popup-overlay" onClick={onClose}>
+                <div className="popup-box ai-box" onClick={e => e.stopPropagation()}>
+                    <button className="ai-close" onClick={onClose}>✕</button>
+                    <div className="ai-inner">
+                        <div className="ai-header">
+                            {coverSrc
+                                ? <img className="ai-book-cover" src={coverSrc} alt={book.title} onError={e => e.target.style.display='none'} />
+                                : <div className="ai-book-cover-fallback">📚</div>
+                            }
+                            <div>
+                                <div className="ai-book-title">{book.title}</div>
+                                <div className="ai-book-author">{book.author}</div>
+                            </div>
+                        </div>
+                        <div className="ai-badge">✨ Resumo BiblioShare</div>
+                        {loading ? (
+                            <div className="ai-loading">
+                                <div className="ai-loading-icon">📖</div>
+                                <div className="ai-loading-text">Preparando o resumo...</div>
+                                <div className="ai-loading-bar"><div className="ai-loading-fill" /></div>
+                            </div>
+                        ) : (
+                            <div className="ai-content">
+                                <div className="ai-section">
+                                    <div className="ai-section-label">📖 Sobre o livro</div>
+                                    <div className="ai-resumo-text">{data.resumo}</div>
+                                </div>
+                                <div className="ai-stats-grid">
+                                    <div className="ai-stat">
+                                        <div className="ai-stat-label">🎭 Gênero</div>
+                                        <div className="ai-stat-value">{data.genero}</div>
+                                    </div>
+                                    <div className="ai-stat">
+                                        <div className="ai-stat-label">📄 Páginas</div>
+                                        <div className="ai-stat-value">{data.paginas}</div>
+                                    </div>
+                                    <div className="ai-stat">
+                                        <div className="ai-stat-label">🎯 Dificuldade</div>
+                                        <div className="ai-stat-value">{data.dificuldade}</div>
+                                    </div>
+                                    <div className="ai-stat">
+                                        <div className="ai-stat-label">🌡️ Clima</div>
+                                        <div className="ai-stat-value">{data.humor}</div>
+                                    </div>
+                                </div>
+                                <div className="ai-section">
+                                    <div className="ai-section-label">💬 Frase marcante</div>
+                                    <div className="ai-quote">{data.frase}</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // =============================================
+    // MODAL ADICIONAR LIVRO (REMOVIDO)
     // =============================================
     function AddBookModal({ onClose, onAdd }) {
         const [livroNome, setLivroNome]   = useState('');
@@ -777,6 +1525,9 @@
         const [modalBook, setModalBook]       = useState(null);
         const [showAddBook, setShowAddBook]   = useState(false);
         const [extraBooks, setExtraBooks]     = useState([]);
+        const [showQuiz, setShowQuiz]         = useState(false);
+        const [aiBook, setAiBook]             = useState(null);
+        const [dark, setDark]                 = useDarkMode();
         const unsubBooksRef = useRef(null);
 
         const unsubRef = useRef(null);
@@ -789,21 +1540,22 @@
         };
 
         useEffect(() => {
-            const saved = sessionStorage.getItem('biblioshare-session');
+            const saved = localStorage.getItem('biblioshare-session');
             if (saved) {
                 try {
                     const session = JSON.parse(saved);
+                    // Restaura imediatamente da sessão local sem esperar o Firebase
+                    setCurrentUser(session);
+                    setAppState('app');
+                    startRealtime();
+                    // Atualiza dados do Firebase em background
                     DB.getUser(session.username).then(user => {
                         if (user) {
                             setCurrentUser({ id: user.id, username: user.username, name: user.name });
                             setMyBorrowed(user.borrowedBooks || {});
-                            setAppState('app');
-                            startRealtime();
-                        } else {
-                            sessionStorage.removeItem('biblioshare-session');
-                            setAppState('login');
                         }
-                    }).catch(() => { setCurrentUser(session); setAppState('app'); });
+                        // Se user não encontrado, mantém sessão local mesmo assim
+                    }).catch(() => { /* mantém sessão local */ });
                 } catch { setAppState('login'); }
             } else { setAppState('login'); }
             return () => {
@@ -812,51 +1564,80 @@
             };
         }, []);
 
-        const withTimeout = (promise, ms = 10000) =>
+        const withTimeout = (promise, ms = 20000) =>
             Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 
         const handleLogin = async (e) => {
             e.preventDefault(); setError(''); setSuccess('');
-            if (!username || !password) { setError('❌ Preencha usuário e senha!'); return; }
+            if (!username.trim() || !password) { setError('❌ Preencha usuário e senha!'); return; }
             setIsSubmitting(true);
             try {
-                const user = await withTimeout(DB.getUser(username));
+                let user;
+                try {
+                    user = await withTimeout(DB.getUser(username.trim()));
+                } catch(err) {
+                    if (err.message === 'timeout') {
+                        setError('⏱️ Servidor demorou muito. Tente novamente.');
+                    } else {
+                        setError('🌐 Erro de conexão: ' + (err.message || 'verifique sua internet.'));
+                    }
+                    setIsSubmitting(false); return;
+                }
                 if (!user) { setError('❌ Usuário não encontrado! Cadastre-se primeiro.'); setIsSubmitting(false); return; }
                 if (user.password !== password) { setError('❌ Senha incorreta!'); setIsSubmitting(false); return; }
-                const session = { id: user.id, username: user.username, name: user.name };
-                sessionStorage.setItem('biblioshare-session', JSON.stringify(session));
-                setCurrentUser(session); setMyBorrowed(user.borrowedBooks || {});
-                setAppState('app'); startRealtime();
+                const session = { id: user._docId || user.id, username: user.username, name: user.name };
+                localStorage.setItem('biblioshare-session', JSON.stringify(session));
+                setCurrentUser(session);
+                setMyBorrowed(user.borrowedBooks || {});
+                setAppState('app');
+                startRealtime();
             } catch(err) {
-                if (err.message === 'timeout') {
-                    setError('❌ Tempo esgotado. Verifique sua conexão ou tente novamente.');
-                } else {
-                    setError('❌ Erro ao conectar: ' + (err.message || 'verifique sua internet.'));
-                }
+                setError('❌ Erro inesperado: ' + (err.message || 'tente novamente.'));
             }
             finally { setIsSubmitting(false); }
         };
 
         const handleRegister = async (e) => {
             e.preventDefault(); setError(''); setSuccess('');
-            if (!name || !email || !username || !password || !confirmPassword) { setError('❌ Preencha todos os campos!'); return; }
-            if (!email.includes('@')) { setError('❌ Email inválido!'); return; }
+            if (!name.trim() || !email.trim() || !username.trim() || !password || !confirmPassword) {
+                setError('❌ Preencha todos os campos!'); return;
+            }
+            if (!email.includes('@') || !email.includes('.')) { setError('❌ Email inválido!'); return; }
+            if (username.trim().length < 3) { setError('❌ Usuário deve ter pelo menos 3 caracteres!'); return; }
             if (password.length < 6) { setError('❌ Senha deve ter no mínimo 6 caracteres!'); return; }
             if (password !== confirmPassword) { setError('❌ As senhas não coincidem!'); return; }
             setIsSubmitting(true);
             try {
-                if (await withTimeout(DB.getUser(username))) { setError('❌ Este usuário já existe!'); setIsSubmitting(false); return; }
-                if (await withTimeout(DB.emailExists(email))) { setError('❌ Este email já está cadastrado!'); setIsSubmitting(false); return; }
-                await withTimeout(DB.createUser({ name, email, username, password }));
+                let existingUser;
+                try {
+                    existingUser = await withTimeout(DB.getUser(username.trim()));
+                } catch(err) {
+                    setError('🌐 Erro de conexão ao verificar usuário: ' + (err.message || 'tente novamente.'));
+                    setIsSubmitting(false); return;
+                }
+                if (existingUser) { setError('❌ Este usuário já existe!'); setIsSubmitting(false); return; }
+
+                let emailUsed;
+                try {
+                    emailUsed = await withTimeout(DB.emailExists(email.trim()));
+                } catch(err) {
+                    setError('🌐 Erro de conexão ao verificar email: ' + (err.message || 'tente novamente.'));
+                    setIsSubmitting(false); return;
+                }
+                if (emailUsed) { setError('❌ Este email já está cadastrado!'); setIsSubmitting(false); return; }
+
+                try {
+                    await withTimeout(DB.createUser({ name: name.trim(), email: email.trim().toLowerCase(), username: username.trim(), password }));
+                } catch(err) {
+                    setError('🌐 Erro ao criar conta: ' + (err.message || 'tente novamente.'));
+                    setIsSubmitting(false); return;
+                }
+
                 setSuccess('✅ Conta criada com sucesso! Faça login.');
                 setShowRegister(false);
                 setName(''); setEmail(''); setUsername(''); setPassword(''); setConfirmPassword('');
             } catch(err) {
-                if (err.message === 'timeout') {
-                    setError('❌ Tempo esgotado. Verifique sua conexão ou tente novamente.');
-                } else {
-                    setError('❌ Erro ao criar conta: ' + (err.message || 'tente novamente.'));
-                }
+                setError('❌ Erro inesperado: ' + (err.message || 'tente novamente.'));
             }
             finally { setIsSubmitting(false); }
         };
@@ -864,13 +1645,12 @@
         const handleLogout = () => {
             if (unsubRef.current) unsubRef.current();
             if (unsubBooksRef.current) unsubBooksRef.current();
-            sessionStorage.removeItem('biblioshare-session');
+            localStorage.removeItem('biblioshare-session');
             setCurrentUser(null); setMyBorrowed({}); setGlobalBorrowed({});
             setUsername(''); setPassword(''); setAppState('login');
         };
 
         const handleBorrow = async (book) => {
-            if (globalBorrowed[book.id]) return;
             const updated = { ...myBorrowed, [book.id]: true };
             setMyBorrowed(updated);
             if (currentUser?.id) { try { await DB.saveBorrowed(currentUser.id, updated); } catch {} }
@@ -886,7 +1666,6 @@
 
         const getBookState = (bookId) => {
             if (myBorrowed[bookId]) return 'mine';
-            if (globalBorrowed[bookId]) return 'taken';
             return 'available';
         };
 
@@ -899,12 +1678,10 @@
                 <div className="books-grid">
                     {books.map(book => {
                         const state = getBookState(book.id);
-                        const takenBy = globalBorrowed[book.id];
                         return (
-                            <div key={book.id} className={`book-card${state === 'taken' ? ' unavailable' : ''}`}>
+                            <div key={book.id} className="book-card">
                                 <div style={{position:'relative'}}>
                                     <DynamicCover isbn={book.cover} title={book.title} author={book.author} height={380} />
-                                    {state === 'taken' && <div className="cover-ribbon">Indisponível</div>}
                                     {book._extra && currentUser?.username?.toLowerCase() === 'yurigg' && (
                                         <button className="btn-delete-book" title="Excluir livro" onClick={async (e) => {
                                             e.stopPropagation();
@@ -931,16 +1708,6 @@
                                             <span className="status-dot status-dot-purple"></span>Emprestado por mim
                                         </div>
                                     )}
-                                    {state === 'taken' && (
-                                        <>
-                                            <div className="book-status status-taken">
-                                                <span className="status-dot status-dot-orange"></span>Indisponível
-                                            </div>
-                                            <div className="borrowed-by">
-                                                <span>👤</span> Com <strong>{takenBy?.name || takenBy?.username}</strong>
-                                            </div>
-                                        </>
-                                    )}
                                     <div className="book-actions">
                                         {state === 'mine' && (
                                             <>
@@ -951,9 +1718,7 @@
                                         {state === 'available' && (
                                             <button className="btn-borrow" onClick={() => handleBorrow(book)}>📚 Emprestar</button>
                                         )}
-                                        {state === 'taken' && (
-                                            <button className="btn-disabled-book" disabled>🔒 Indisponível no momento</button>
-                                        )}
+                                        <button className="btn-ai" onClick={() => setAiBook(book)}>✨ Ver resumo</button>
                                     </div>
                                 </div>
                             </div>
@@ -1007,20 +1772,17 @@
         return (
             <>
                 {modalBook && <BookModal book={modalBook} onClose={() => setModalBook(null)} />}
-                {showAddBook && <AddBookModal onClose={() => setShowAddBook(false)} onAdd={async (livro, cat) => {
-                    try {
-                        await DB.addBook({ ...livro, categoria: cat });
-                    } catch(e) {
-                        setExtraBooks(prev => [...prev, { ...livro, categoria: cat }]);
-                    }
-                }} />}
+                {showQuiz && <QuizModal onClose={() => setShowQuiz(false)} onSelectBook={(book) => { setModalBook(book); }} />}
+                {aiBook && <AISummaryModal book={aiBook} onClose={() => setAiBook(null)} />}
                 <header>
                     <div className="container">
                         <div className="header-content">
                             <div className="logo">📚 BiblioShare</div>
                             <div className="user-info">
+                                <button className="dark-toggle" onClick={() => setDark(d => !d)} title="Alternar modo escuro">
+                                    {dark ? '☀️' : '🌙'}
+                                </button>
                                 <span className="user-name">Olá, {currentUser?.name || currentUser?.username}! 👋</span>
-                                <button className="btn-add-book" onClick={() => setShowAddBook(true)}>➕ Adicionar Livro</button>
                                 <button className="btn-logout" onClick={handleLogout}>Sair</button>
                             </div>
                         </div>
@@ -1029,7 +1791,10 @@
                 <div className="container">
                     <div className="hero">
                         <h1>Biblioteca Virtual Completa</h1>
-                        <p>24 livros incríveis disponíveis para leitura</p>
+                        <p>48 livros incríveis disponíveis para leitura</p>
+                        <button className="btn-quiz" onClick={() => setShowQuiz(true)}>
+                            🎯 Descobrir meu livro ideal
+                        </button>
                     </div>
                     {renderCategory('infantil', '📚 Livros Infantis', 'Aventuras mágicas para os pequenos leitores', [...BOOKS_DATA.infantil, ...extraBooks.filter(b => b.categoria === 'infantil')])}
                     {renderCategory('feminino', '💖 Romances e Ficção Feminina', 'Histórias envolventes de amor, amizade e superação', [...BOOKS_DATA.feminino, ...extraBooks.filter(b => b.categoria === 'feminino')])}
