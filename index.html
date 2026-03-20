@@ -11,6 +11,8 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -339,171 +341,75 @@
 <div id="root"></div>
 
 <script>
-    // ============================================================
-    // FIREBASE FIRESTORE REST API — COMPATÍVEL COM GITHUB PAGES
-    // ============================================================
-    const FB_PROJECT = 'biblioshare-61f23';
-    const FB_KEY     = 'AIzaSyCbbCBP6gT19_7F3mkthPoBDWnnv98XU_Q';
-    const FB_BASE    = 'https://firestore.googleapis.com/v1/projects/' + FB_PROJECT + '/databases/(default)/documents';
+    // Firebase SDK v10 compat — sem proxy, sem CORS issues
+    const firebaseConfig = {
+        apiKey:            "AIzaSyCbbCBP6gT19_7F3mkthPoBDWnnv98XU_Q",
+        authDomain:        "biblioshare-61f23.firebaseapp.com",
+        projectId:         "biblioshare-61f23",
+        storageBucket:     "biblioshare-61f23.firebasestorage.app",
+        messagingSenderId: "298180748660",
+        appId:             "1:298180748660:web:85c511358a9bf44c1cf821",
+        measurementId:     "G-C681YGYC6S"
+    };
 
-    // Proxies CORS em ordem de tentativa
-    const CORS_PROXIES = [
-        function(u){ return 'https://corsproxy.io/?url=' + encodeURIComponent(u); },
-        function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
-        function(u){ return 'https://corsproxy.org/?' + encodeURIComponent(u); },
-    ];
+    firebase.initializeApp(firebaseConfig);
+    const _db = firebase.firestore();
 
-    // Faz fetch tentando direto e depois cada proxy
-    async function fbFetch(url, options) {
-        options = options || {};
-        const headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
-        const opts = Object.assign({}, options, { headers: headers });
-
-        // Direto (funciona se o Firebase tiver CORS liberado pra esse domínio)
-        try {
-            const r = await fetch(url, opts);
-            if (r.status !== 0) return r;
-        } catch(e) {}
-
-        // Cada proxy
-        for (let i = 0; i < CORS_PROXIES.length; i++) {
-            try {
-                const r = await fetch(CORS_PROXIES[i](url), opts);
-                if (r.status !== 0) return r;
-            } catch(e) {}
-        }
-
-        throw new Error('Não foi possível conectar ao servidor. Verifique sua internet.');
-    }
-
-    // Lê e parseia JSON de uma Response com segurança
-    async function readJSON(r) {
-        const text = await r.text();
-        if (!text || text.trim() === '') return {};
-        try { return JSON.parse(text); }
-        catch(e) { throw new Error('Resposta inválida do servidor (não é JSON). Status: ' + r.status); }
-    }
-
-    // ---- Conversores JS <-> Firestore Value ----
-    function toFV(val) {
-        if (val === null || val === undefined) return { nullValue: null };
-        if (typeof val === 'boolean')          return { booleanValue: val };
-        if (typeof val === 'number')           return Number.isInteger(val) ? { integerValue: String(val) } : { doubleValue: val };
-        if (Array.isArray(val))                return { arrayValue: { values: val.map(toFV) } };
-        if (typeof val === 'object') {
-            const fields = {};
-            for (var k in val) if (Object.prototype.hasOwnProperty.call(val, k)) fields[k] = toFV(val[k]);
-            return { mapValue: { fields: fields } };
-        }
-        return { stringValue: String(val) };
-    }
-
-    function fromFV(fv) {
-        if (!fv) return null;
-        if ('nullValue'    in fv) return null;
-        if ('booleanValue' in fv) return fv.booleanValue;
-        if ('integerValue' in fv) return Number(fv.integerValue);
-        if ('doubleValue'  in fv) return fv.doubleValue;
-        if ('stringValue'  in fv) return fv.stringValue;
-        if ('arrayValue'   in fv) return ((fv.arrayValue && fv.arrayValue.values) || []).map(fromFV);
-        if ('mapValue'     in fv) {
-            var obj = {};
-            var fields = (fv.mapValue && fv.mapValue.fields) || {};
-            for (var k in fields) if (Object.prototype.hasOwnProperty.call(fields, k)) obj[k] = fromFV(fields[k]);
-            return obj;
-        }
-        return null;
-    }
-
-    function docToObj(doc) {
-        if (!doc || !doc.fields) return null;
-        var obj = {};
-        for (var k in doc.fields) if (Object.prototype.hasOwnProperty.call(doc.fields, k)) obj[k] = fromFV(doc.fields[k]);
-        obj._docId = (doc.name || '').split('/').pop();
-        obj.id = obj._docId;
-        return obj;
-    }
-
-    function objToFields(obj) {
-        var fields = {};
-        for (var k in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, k) && k !== 'id' && k !== '_docId') {
-                fields[k] = toFV(obj[k]);
-            }
-        }
-        return fields;
-    }
-
-    // ---- API pública ----
     window.FBDB = {
 
         async getAll(collection) {
-            var url = FB_BASE + '/' + collection + '?key=' + FB_KEY;
-            var r = await fbFetch(url);
-            var data = await readJSON(r);
-            if (data.error) throw new Error('Firebase: ' + (data.error.message || JSON.stringify(data.error)));
-            if (!data.documents) return [];
-            return data.documents.map(docToObj).filter(Boolean);
+            const snap = await _db.collection(collection).get();
+            return snap.docs.map(function(d) {
+                const obj = d.data();
+                obj._docId = d.id;
+                obj.id     = d.id;
+                return obj;
+            });
         },
 
         async getDoc(collection, docId) {
-            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY;
-            var r = await fbFetch(url);
-            if (r.status === 404) return null;
-            var data = await readJSON(r);
-            if (data.error) return null;
-            return docToObj(data);
+            const snap = await _db.collection(collection).doc(docId).get();
+            if (!snap.exists) return null;
+            const obj = snap.data();
+            obj._docId = snap.id;
+            obj.id     = snap.id;
+            return obj;
         },
 
         async add(collection, obj) {
-            var url = FB_BASE + '/' + collection + '?key=' + FB_KEY;
-            var body = JSON.stringify({ fields: objToFields(obj) });
-            var r = await fbFetch(url, { method: 'POST', body: body });
-            var data = await readJSON(r);
-            if (!r.ok || data.error) throw new Error('Firebase add: ' + ((data.error && data.error.message) || r.status));
-            return (data.name || '').split('/').pop();
-        },
-
-        async set(collection, docId, obj) {
-            // Cria ou sobrescreve completamente um documento com ID conhecido
-            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY;
-            var body = JSON.stringify({ fields: objToFields(obj) });
-            var r = await fbFetch(url, { method: 'PATCH', body: body });
-            var data = await readJSON(r);
-            if (!r.ok || data.error) throw new Error('Firebase set: ' + ((data.error && data.error.message) || r.status));
+            const payload = Object.assign({}, obj);
+            delete payload.id;
+            delete payload._docId;
+            const ref = await _db.collection(collection).add(payload);
+            return ref.id;
         },
 
         async update(collection, docId, obj) {
-            var keys = Object.keys(obj).filter(function(k){ return k !== 'id' && k !== '_docId'; });
-            var fieldMask = keys.map(function(k){ return 'updateMask.fieldPaths=' + encodeURIComponent(k); }).join('&');
-            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY + '&' + fieldMask;
-            var body = JSON.stringify({ fields: objToFields(obj) });
-            var r = await fbFetch(url, { method: 'PATCH', body: body });
-            if (!r.ok) {
-                var data = await readJSON(r);
-                throw new Error('Firebase update: ' + ((data.error && data.error.message) || r.status));
-            }
+            const payload = Object.assign({}, obj);
+            delete payload.id;
+            delete payload._docId;
+            await _db.collection(collection).doc(docId).update(payload);
+        },
+
+        async set(collection, docId, obj) {
+            const payload = Object.assign({}, obj);
+            delete payload.id;
+            delete payload._docId;
+            await _db.collection(collection).doc(docId).set(payload);
         },
 
         async delete(collection, docId) {
-            var url = FB_BASE + '/' + collection + '/' + docId + '?key=' + FB_KEY;
-            var r = await fbFetch(url, { method: 'DELETE' });
-            if (!r.ok) {
-                var data = await readJSON(r);
-                throw new Error('Firebase delete: ' + ((data.error && data.error.message) || r.status));
-            }
+            await _db.collection(collection).doc(docId).delete();
         },
 
-        // Polling com exponential backoff
         listenAll(collection, callback) {
-            var self = this;
-            var active = true;
-            var delay = 6000;
-            var run = async function() {
+            const self = this;
+            let active = true;
+            let delay  = 6000;
+            const run = async function() {
                 if (!active) return;
                 try {
-                    var docs = await self.getAll(collection);
-                    callback(docs);
+                    callback(await self.getAll(collection));
                     delay = 6000;
                 } catch(e) {
                     delay = Math.min(delay * 2, 30000);
@@ -511,7 +417,7 @@
                 if (active) setTimeout(run, delay);
             };
             run();
-            return function(){ active = false; };
+            return function() { active = false; };
         }
     };
 </script>
