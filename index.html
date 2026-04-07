@@ -45,6 +45,22 @@
         body.dark-mode .hero { background: linear-gradient(135deg, #1a1a2e, #16213e); }
         body.dark-mode .category-section { background: transparent; }
         body.dark-mode .modal-box { background: #1a1a2e; color: #e8e8f0; }
+
+        /* Quiz dark mode */
+        body.dark-mode .quiz-modal { color: #e8e8f0; }
+        body.dark-mode .quiz-modal div { color: #e8e8f0; }
+        body.dark-mode .quiz-modal span { color: #e8e8f0; }
+        body.dark-mode .quiz-modal button { background: #1c1838 !important; border-color: #2e2a55 !important; color: #d4d0f5 !important; }
+        body.dark-mode .quiz-modal button:hover { background: #251f48 !important; border-color: #7c6fe0 !important; color: #c4b5fd !important; }
+        body.dark-mode .quiz-modal .modal-close { background: none !important; border: none !important; color: #aaa !important; }
+        body.dark-mode .quiz-modal .modal-close:hover { color: #e94560 !important; }
+
+        /* AI modal dark mode */
+        body.dark-mode .ai-modal { color: #e8e8f0; }
+        body.dark-mode .ai-modal div { color: #e8e8f0; }
+        body.dark-mode .ai-modal span { color: #e8e8f0; }
+        body.dark-mode .ai-modal .modal-close { background: none !important; border: none !important; color: #aaa !important; }
+        body.dark-mode .ai-modal .modal-close:hover { color: #e94560 !important; }
         body.dark-mode .login-box { background: rgba(26,26,46,0.97); color: #e8e8f0; }
         body.dark-mode .form-input { background: #0f0f1a; border-color: #2a2a4a; color: #e8e8f0; }
         body.dark-mode .book-title { color: #e8e8f0; }
@@ -54,20 +70,16 @@
 
         .dark-toggle {
 
-        /* ===== QUIZ ===== */
-        /* ===== POPUP BASE (igual BookModal) ===== */
-        .popup-overlay { position:fixed; inset:0; background:rgba(8,8,24,0.78); backdrop-filter:blur(8px) saturate(180%); -webkit-backdrop-filter:blur(8px) saturate(180%); z-index:1000; display:flex; align-items:center; justify-content:center; padding:1rem; animation:fadeIn 0.2s ease; }
-        .popup-box { background:#ffffff; border-radius:28px; width:100%; box-shadow:0 32px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.9); animation:modalIn 0.42s cubic-bezier(0.34,1.56,0.64,1); position:relative; overflow:hidden; }
-        .popup-box::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg,#667eea,#764ba2,#f093fb,#e94560,#667eea); background-size:300%; animation:shimmer 4s linear infinite; border-radius:28px 28px 0 0; z-index:3; }
-        @keyframes shimmer { 0%{background-position:0%} 100%{background-position:300%} }
-        body.dark-mode .popup-box { background:#13102a; border:1px solid rgba(102,126,234,0.22); box-shadow:0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(102,126,234,0.15); }
+        /* ===== POPUP BASE — mesmo estilo do modal de empréstimo ===== */
+        .popup-overlay { position:fixed; inset:0; background:rgba(10,10,20,0.78); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:center; justify-content:center; padding:1.5rem; animation:fadeIn 0.2s ease; }
+        .popup-box { background:white; border-radius:24px; width:100%; box-shadow:0 40px 100px rgba(0,0,0,0.4); animation:modalIn 0.35s cubic-bezier(0.34,1.56,0.64,1); position:relative; overflow:hidden; }
+        body.dark-mode .popup-box { background:#1a1a2e; }
+        /* ─ botão X universal para popups ─ */
+        .popup-close { position:absolute; top:1rem; right:1.2rem; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#aaa; line-height:1; z-index:5; transition:color 0.2s, transform 0.2s; }
+        .popup-close:hover { color:#e94560; transform:scale(1.2); }
 
         /* ===== QUIZ ===== */
-        .quiz-box { max-width:540px; padding:2.8rem 2.6rem 2.4rem; }
-        .quiz-close { position:absolute; top:1.2rem; right:1.2rem; width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.05); border:1.5px solid rgba(0,0,0,0.08); font-size:0.88rem; cursor:pointer; color:#999; display:flex; align-items:center; justify-content:center; transition:all 0.22s; font-weight:700; z-index:4; }
-        .quiz-close:hover { background:#fff0f2; border-color:#ffb3c0; color:#e94560; transform:rotate(90deg) scale(1.12); }
-        body.dark-mode .quiz-close { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); color:#888; }
-        body.dark-mode .quiz-close:hover { background:rgba(233,69,96,0.15); border-color:#e94560; color:#ff6b8a; }
+        .quiz-box { max-width:520px; padding:2.4rem 2.2rem 2.2rem; }
         .quiz-icon { width:58px; height:58px; border-radius:20px; background:linear-gradient(135deg,#667eea,#f093fb); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:1.1rem; box-shadow:0 10px 28px rgba(102,126,234,0.42); }
         .quiz-title { font-family:'Crimson Pro',serif; font-size:2rem; font-weight:700; margin-bottom:0.2rem; color:#1a1a2e; }
         body.dark-mode .quiz-title { color:#f0eeff; }
@@ -115,12 +127,9 @@
         body.dark-mode .quiz-btn-secondary:hover { background:#1c1838; border-color:#7c6fe0; color:#c4b5fd; }
 
         /* ===== RESUMO IA ===== */
-        .ai-box { max-width:600px; max-height:88vh; overflow-y:auto; }
-        .ai-inner { padding:2.8rem 2.6rem 2.4rem; }
-        .ai-close { position:absolute; top:1.2rem; right:1.2rem; width:36px; height:36px; border-radius:50%; background:rgba(0,0,0,0.05); border:1.5px solid rgba(0,0,0,0.08); font-size:0.88rem; cursor:pointer; color:#999; display:flex; align-items:center; justify-content:center; transition:all 0.22s; font-weight:700; z-index:4; }
-        .ai-close:hover { background:#fff0f2; border-color:#ffb3c0; color:#e94560; transform:rotate(90deg) scale(1.12); }
-        body.dark-mode .ai-close { background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.1); color:#888; }
-        body.dark-mode .ai-close:hover { background:rgba(233,69,96,0.15); border-color:#e94560; color:#ff6b8a; }
+        .ai-box { max-width:560px; max-height:85vh; overflow-y:auto; }
+        .ai-inner { padding:2.4rem 2.2rem 2.2rem; }
+        /* ai-close usa .popup-close */
         .ai-header { display:flex; align-items:center; gap:1.2rem; margin-bottom:1.5rem; }
         .ai-book-cover { width:68px; height:95px; object-fit:cover; border-radius:12px; flex-shrink:0; box-shadow:0 10px 28px rgba(0,0,0,0.28); }
         .ai-book-cover-fallback { width:68px; height:95px; background:linear-gradient(135deg,#667eea,#f093fb); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:2rem; flex-shrink:0; box-shadow:0 10px 28px rgba(102,126,234,0.35); }
@@ -149,18 +158,22 @@
         .ai-quote { background:linear-gradient(135deg,#f8f5ff,#fef5ff); border-left:3px solid #9b8eff; padding:1.1rem 1.3rem; border-radius:0 16px 16px 0; font-style:italic; font-size:0.94rem; color:#4a3f7e; line-height:1.7; }
         body.dark-mode .ai-quote { color:#c4b5fd; background:linear-gradient(135deg,#1c1838,#1f1535); border-left-color:#7c6fe0; }
 
-        /* Botão IA no card */
-        .btn-ai { width:100%; padding:0.7rem 1rem; background:white; border:1.5px solid #e8e0ff; border-radius:12px; color:#7c6fe0; font-size:0.84rem; font-weight:700; cursor:pointer; transition:all 0.25s cubic-bezier(0.4,0,0.2,1); margin-top:0.55rem; display:flex; align-items:center; justify-content:center; gap:0.4rem; letter-spacing:0.2px; box-shadow:0 2px 8px rgba(102,126,234,0.1); }
-        .btn-ai:hover { background:linear-gradient(135deg,#f0edff,#fce4ff); border-color:#b49ef5; transform:translateY(-2px); box-shadow:0 6px 18px rgba(102,126,234,0.22); color:#5a4fcf; }
-        .btn-ai:active { transform:translateY(0); }
-        body.dark-mode .btn-ai { background:#1a1440; border-color:#3a2e6e; color:#a89cf5; box-shadow:none; }
-        body.dark-mode .btn-ai:hover { background:#231960; border-color:#6b5ce7; color:#c4b5fd; }
+        /* Botão IA no card — rosa-magenta, combinando com o site */
+        .btn-ai { width:100%; padding:0.82rem 1rem; background:linear-gradient(135deg,#e94560,#f093fb); border:none; border-radius:50px; color:white; font-size:0.84rem; font-weight:700; cursor:pointer; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); margin-top:0.55rem; display:flex; align-items:center; justify-content:center; gap:0.5rem; letter-spacing:0.4px; box-shadow:0 4px 18px rgba(233,69,96,0.38); position:relative; overflow:hidden; }
+        .btn-ai::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent); transition:left 0.5s ease; }
+        .btn-ai:hover::before { left:150%; }
+        .btn-ai:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 10px 30px rgba(233,69,96,0.52); }
+        .btn-ai:active { transform:translateY(0) scale(0.97); }
+        body.dark-mode .btn-ai { background:linear-gradient(135deg,#c73652,#d974e8); box-shadow:0 4px 18px rgba(199,54,82,0.45); }
+        body.dark-mode .btn-ai:hover { box-shadow:0 10px 30px rgba(199,54,82,0.65); }
 
         /* Botão quiz no hero */
-        .btn-quiz { display:inline-flex; align-items:center; gap:0.6rem; margin-top:1.4rem; padding:1rem 2.4rem; background:linear-gradient(135deg,#667eea,#764ba2,#f093fb); background-size:200% 200%; color:white; border:none; border-radius:50px; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.4s ease; box-shadow:0 6px 24px rgba(102,126,234,0.45); letter-spacing:0.3px; animation:pulseQuiz 3s ease-in-out infinite; }
-        @keyframes pulseQuiz { 0%,100%{box-shadow:0 6px 24px rgba(102,126,234,0.45)} 50%{box-shadow:0 8px 32px rgba(102,126,234,0.65), 0 0 0 6px rgba(102,126,234,0.12)} }
-        .btn-quiz:hover { background-position:right center; transform:translateY(-3px) scale(1.04); box-shadow:0 12px 36px rgba(102,126,234,0.6); animation:none; }
-        .btn-quiz:active { transform:translateY(-1px) scale(1); }
+        .btn-quiz { display:inline-flex; align-items:center; gap:0.65rem; margin-top:1.4rem; padding:1.05rem 2.6rem; background:linear-gradient(135deg,#667eea,#764ba2,#f093fb); background-size:200% 200%; color:white; border:none; border-radius:50px; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 6px 28px rgba(102,126,234,0.5); letter-spacing:0.4px; animation:pulseQuiz 3s ease-in-out infinite; position:relative; overflow:hidden; }
+        .btn-quiz::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transition:left 0.6s ease; }
+        .btn-quiz:hover::before { left:150%; }
+        @keyframes pulseQuiz { 0%,100%{box-shadow:0 6px 28px rgba(102,126,234,0.5)} 50%{box-shadow:0 10px 36px rgba(102,126,234,0.7), 0 0 0 6px rgba(102,126,234,0.1)} }
+        .btn-quiz:hover { background-position:right center; transform:translateY(-4px) scale(1.05); box-shadow:0 16px 44px rgba(102,126,234,0.65); animation:none; }
+        .btn-quiz:active { transform:translateY(-1px) scale(0.98); }
 
             background: none; border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50px; padding: 0.4rem 0.9rem;
@@ -253,9 +266,7 @@
 
         .book-cover {
             width:100%; height:380px;
-            background:linear-gradient(135deg,var(--secondary),var(--accent));
-            background-size:cover; background-position:center top;
-            position:relative;
+            position:relative; overflow:hidden;
         }
         /* Fallback visual para capas que não carregam */
         .book-cover-img {
@@ -426,54 +437,54 @@
     const { useState, useEffect, useRef } = React;
 
     const COVERS = {
-      'O Pequeno Príncipe': 'https://m.media-amazon.com/images/I/71LJ4k-k9hL.jpg',
-      'Harry Potter e a Pedra Filosofal': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL3rP674sZUWlJWm43Qi11x8jtqAtjOM9HXw&s',
-      'O Menino Maluquinho': 'https://m.media-amazon.com/images/I/911o1h5gIzL.jpg',
-      'A Fantástica Fábrica de Chocolate': 'https://m.media-amazon.com/images/I/81Z0eOVPjlL._UF1000,1000_QL80_.jpg',
-      'Vidas Secas': 'https://cdn.record.com.br/wp-content/uploads/2019/07/26025932/16406-600x927.jpeg',
-      'Percy Jackson e o Ladrão de Raios': 'https://m.media-amazon.com/images/I/A1UjcPz4gZL._AC_UF1000,1000_QL80_.jpg',
-      'A Metamorfose': 'https://m.media-amazon.com/images/I/71QLwli7GUL.jpg',
-      'Iracema': 'https://m.media-amazon.com/images/I/71LCDi6E2oL.jpg',
-      'A Revolução dos Bichos': 'https://m.media-amazon.com/images/I/91BsZhxCRjL.jpg',
-      'Vermelho, Branco e Sangue Azul': 'https://m.media-amazon.com/images/I/71SYepTUsDL.jpg',
-      '1984': 'https://m.media-amazon.com/images/I/61t0bwt1s3L._AC_UF1000,1000_QL80_.jpg',
-      'O Guarani': 'https://m.media-amazon.com/images/I/91-16juFmnL.jpg',
-      'Dom Casmurro': 'https://m.media-amazon.com/images/I/61x1ZHomWUL._AC_UF1000,1000_QL80_.jpg',
-      'Orgulho e Preconceito': 'https://m.media-amazon.com/images/M/MV5BZDJjMjZkMjItYTIyOC00OTI2LTkyOTQtNGMxOWZjMjI4MjBhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
-      'O Alquimista': 'https://m.media-amazon.com/images/I/81slUinjTlS.jpg',
-      'Romeu e Julieta': 'https://m.media-amazon.com/images/I/91nx1y9j+fS._AC_UF1000,1000_QL80_.jpg',
-      'A Culpa é das Estrelas': 'https://m.media-amazon.com/images/I/811ivBP1rsL._UF1000,1000_QL80_.jpg',
-      'Memórias Póstumas de Brás Cubas': 'https://m.media-amazon.com/images/I/71OL9RU2tJL.jpg',
-      'Anne de Green Gables': 'https://m.media-amazon.com/images/I/71HIiVIqw5L.jpg',
-      'Torto Arado': 'https://m.media-amazon.com/images/I/51-ZLmeUNOL._AC_UF1000,1000_QL80_.jpg',
-      'Hábitos Atômicos': 'https://m.media-amazon.com/images/I/81eT2pjx4jL.jpg',
-      'O Homem Mais Rico da Babilônia': 'https://images-na.ssl-images-amazon.com/images/I/81ehX6Quw2L._AC_UL900_SR615,900_.jpg',
-      'Mindset': 'https://m.media-amazon.com/images/I/71Ils+Co9fL.jpg',
-      'Dom Quixote': 'https://m.media-amazon.com/images/I/81pdXbEIZhL._UF1000,1000_QL80_.jpg',
-      'A Marca de uma Lágrima': 'https://m.media-amazon.com/images/I/61vmtzpmu8L._AC_UF1000,1000_QL80_.jpg',
-      'O Mágico de Oz': 'https://m.media-amazon.com/images/I/91cUKFkOBsL._AC_UF1000,1000_QL80_.jpg',
-      'Extraordinário': 'https://m.media-amazon.com/images/I/71I3OkYQI7L._UF1000,1000_QL80_.jpg',
-      'A Cabana': 'https://m.media-amazon.com/images/I/71ydFW-qgQL._AC_UF1000,1000_QL80_.jpg',
-      'Jogos Vorazes': 'https://images.dlivros.org/Suzanne-Collins/jogos-vorazes-ilustrado-suzanne-collins_large.webp',
-      'O Senhor dos Anéis': 'https://m.media-amazon.com/images/I/81KGUQ+PMgL._AC_UF1000,1000_QL80_.jpg',
-      'A Menina que Roubava Livros': 'https://cdn.kobo.com/book-images/82db2aae-2164-4a21-a785-70a53d2b6de3/353/569/90/False/a-menina-que-roubava-livros.jpg',
-      'A Biblioteca da Meia-Noite': 'https://m.media-amazon.com/images/I/51redg0moFL._AC_UF1000,1000_QL80_.jpg',
-      'Frankenstein': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJP_IiH2gtqczgoCExaSAW_XYyREmHGlebpQ&s',
-      'O Retrato de Dorian Gray': 'https://m.media-amazon.com/images/I/A1bYc7NWsPL._AC_UF1000,1000_QL80_.jpg',
-      'A Seleção': 'https://cdl-static.s3-sa-east-1.amazonaws.com/covers/gg/9788565765015/a-selecao.jpg',
-      'Corte de Espinhos e Rosas': 'https://m.media-amazon.com/images/I/81aQ-osTBXL.jpg',
-      'O Cortiço': 'https://m.media-amazon.com/images/I/8153IdR+NyL._AC_UF1000,1000_QL80_.jpg',
-      'O Conde de Monte Cristo': 'https://m.media-amazon.com/images/I/81ZswN9PVPL._AC_UF1000,1000_QL80_.jpg',
-      'Crime e Castigo': 'https://m.media-amazon.com/images/I/71Gmavgu3ZL.jpg',
-      'It - A Coisa': 'https://m.media-amazon.com/images/I/91g9Dvtf+jL.jpg',
-      'Sapiens': 'https://m.media-amazon.com/images/I/81BTkpMrLYL.jpg',
-      'A Arte da Guerra': 'https://m.media-amazon.com/images/I/71FMCr5Z9rL.jpg',
+      'O Pequeno Príncipe':                   'https://m.media-amazon.com/images/I/71LJ4k-k9hL.jpg',
+      'Harry Potter e a Pedra Filosofal':     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSL3rP674sZUWlJWm43Qi11x8jtqAtjOM9HXw&s',
+      'O Menino Maluquinho':                  'https://m.media-amazon.com/images/I/911o1h5gIzL.jpg',
+      'A Fantástica Fábrica de Chocolate':    'https://m.media-amazon.com/images/I/81Z0eOVPjlL._UF1000,1000_QL80_.jpg',
+      'Vidas Secas':                          'https://cdn.record.com.br/wp-content/uploads/2019/07/26025932/16406-600x927.jpeg',
+      'Percy Jackson e o Ladrão de Raios':    'https://m.media-amazon.com/images/I/A1UjcPz4gZL._AC_UF1000,1000_QL80_.jpg',
+      'A Metamorfose':                        'https://m.media-amazon.com/images/I/71QLwli7GUL.jpg',
+      'Iracema':                              'https://m.media-amazon.com/images/I/71LCDi6E2oL.jpg',
+      'A Revolução dos Bichos':               'https://m.media-amazon.com/images/I/91BsZhxCRjL.jpg',
+      'Vermelho, Branco e Sangue Azul':       'https://m.media-amazon.com/images/I/71SYepTUsDL.jpg',
+      '1984':                                 'https://m.media-amazon.com/images/I/61t0bwt1s3L._AC_UF1000,1000_QL80_.jpg',
+      'O Guarani':                            'https://m.media-amazon.com/images/I/91-16juFmnL.jpg',
+      'Dom Casmurro':                         'https://m.media-amazon.com/images/I/61x1ZHomWUL._AC_UF1000,1000_QL80_.jpg',
+      'Orgulho e Preconceito':                'https://m.media-amazon.com/images/M/MV5BZDJjMjZkMjItYTIyOC00OTI2LTkyOTQtNGMxOWZjMjI4MjBhXkEyXkFqcGc@._V1_FMjpg_UX1000_.jpg',
+      'O Alquimista':                         'https://m.media-amazon.com/images/I/81slUinjTlS.jpg',
+      'Romeu e Julieta':                      'https://m.media-amazon.com/images/I/91nx1y9j+fS._AC_UF1000,1000_QL80_.jpg',
+      'A Culpa é das Estrelas':               'https://m.media-amazon.com/images/I/811ivBP1rsL._UF1000,1000_QL80_.jpg',
+      'Memórias Póstumas de Brás Cubas':      'https://m.media-amazon.com/images/I/71OL9RU2tJL.jpg',
+      'Anne de Green Gables':                 'https://m.media-amazon.com/images/I/71HIiVIqw5L.jpg',
+      'Torto Arado':                          'https://m.media-amazon.com/images/I/51-ZLmeUNOL._AC_UF1000,1000_QL80_.jpg',
+      'Hábitos Atômicos':                     'https://m.media-amazon.com/images/I/81eT2pjx4jL.jpg',
+      'O Homem Mais Rico da Babilônia':       'https://images-na.ssl-images-amazon.com/images/I/81ehX6Quw2L._AC_UL900_SR615,900_.jpg',
+      'Mindset':                              'https://m.media-amazon.com/images/I/71Ils+Co9fL.jpg',
+      'Dom Quixote':                          'https://m.media-amazon.com/images/I/81pdXbEIZhL._UF1000,1000_QL80_.jpg',
+      'A Marca de uma Lágrima':               'https://m.media-amazon.com/images/I/61vmtzpmu8L._AC_UF1000,1000_QL80_.jpg',
+      'O Mágico de Oz':                       'https://m.media-amazon.com/images/I/91cUKFkOBsL._AC_UF1000,1000_QL80_.jpg',
+      'Extraordinário':                       'https://m.media-amazon.com/images/I/71I3OkYQI7L._UF1000,1000_QL80_.jpg',
+      'A Cabana':                             'https://m.media-amazon.com/images/I/71ydFW-qgQL._AC_UF1000,1000_QL80_.jpg',
+      'Jogos Vorazes':                        'https://images.dlivros.org/Suzanne-Collins/jogos-vorazes-ilustrado-suzanne-collins_large.webp',
+      'O Senhor dos Anéis':                   'https://m.media-amazon.com/images/I/81KGUQ+PMgL._AC_UF1000,1000_QL80_.jpg',
+      'A Menina que Roubava Livros':          'https://cdn.kobo.com/book-images/82db2aae-2164-4a21-a785-70a53d2b6de3/353/569/90/False/a-menina-que-roubava-livros.jpg',
+      'A Biblioteca da Meia-Noite':           'https://m.media-amazon.com/images/I/51redg0moFL._AC_UF1000,1000_QL80_.jpg',
+      'Frankenstein':                         'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRJP_IiH2gtqczgoCExaSAW_XYyREmHGlebpQ&s',
+      'O Retrato de Dorian Gray':             'https://m.media-amazon.com/images/I/A1bYc7NWsPL._AC_UF1000,1000_QL80_.jpg',
+      'A Seleção':                            'https://cdl-static.s3-sa-east-1.amazonaws.com/covers/gg/9788565765015/a-selecao.jpg',
+      'Corte de Espinhos e Rosas':            'https://m.media-amazon.com/images/I/81aQ-osTBXL.jpg',
+      'O Cortiço':                            'https://m.media-amazon.com/images/I/8153IdR+NyL._AC_UF1000,1000_QL80_.jpg',
+      'O Conde de Monte Cristo':              'https://m.media-amazon.com/images/I/81ZswN9PVPL._AC_UF1000,1000_QL80_.jpg',
+      'Crime e Castigo':                      'https://m.media-amazon.com/images/I/71Gmavgu3ZL.jpg',
+      'It - A Coisa':                         'https://m.media-amazon.com/images/I/91g9Dvtf+jL.jpg',
+      'Sapiens':                              'https://m.media-amazon.com/images/I/81BTkpMrLYL.jpg',
+      'A Arte da Guerra':                     'https://m.media-amazon.com/images/I/71FMCr5Z9rL.jpg',
       'Como Fazer Amigos e Influenciar Pessoas': 'https://0.academia-photos.com/attachment_thumbnails/110574608/mini_magick20240118-1-mfems0.png?1705567532',
-      'Pai Rico, Pai Pobre': 'https://m.media-amazon.com/images/I/71V4lNR2gKL.jpg',
-      'O Poder do Agora': 'https://m.media-amazon.com/images/I/71sh8JtiZbL._AC_UF1000,1000_QL80_.jpg',
-      'A Moreninha': 'https://m.media-amazon.com/images/I/61Q6vZZzTML._AC_UF1000,1000_QL80_.jpg',
-      'A Divina Comédia': 'https://www.lpm.com.br/livros/imagens/a_divina_comedia_16x23__9786556664941_hd.jpg',
-      'Memórias de um Sargento de Milícias': 'https://m.media-amazon.com/images/I/71MebPfNmQL._AC_UF1000,1000_QL80_.jpg',
+      'Pai Rico, Pai Pobre':                  'https://m.media-amazon.com/images/I/71V4lNR2gKL.jpg',
+      'O Poder do Agora':                     'https://m.media-amazon.com/images/I/71sh8JtiZbL._AC_UF1000,1000_QL80_.jpg',
+      'A Moreninha':                          'https://m.media-amazon.com/images/I/61Q6vZZzTML._AC_UF1000,1000_QL80_.jpg',
+      'A Divina Comédia':                     'https://www.lpm.com.br/livros/imagens/a_divina_comedia_16x23__9786556664941_hd.jpg',
+      'Memórias de um Sargento de Milícias':  'https://m.media-amazon.com/images/I/71MebPfNmQL._AC_UF1000,1000_QL80_.jpg',
     };
 
     function DynamicCover({ isbn, title, height = 380, className = '' }) {
@@ -486,7 +497,7 @@
                 <span className="book-cover-fallback-title">{title}</span>
             </div>
         );
-        return <img className={`book-cover-img ${className}`} src={src} alt={title} style={{ height, width: 'auto', objectFit: 'cover', borderRadius: 6 }} onError={() => setFailed(true)} />;
+        return <img className={`book-cover-img ${className}`} src={src} alt={title} style={{ width: '100%', height: 380, objectFit: 'cover', objectPosition: 'center top', display: 'block' }} onError={() => setFailed(true)} />;
     }
     const OL = (isbn) => isbn;
 
@@ -588,7 +599,7 @@
                 title: 'O Senhor dos Anéis',
                 author: 'J.R.R. Tolkien',
                 cover: OL('9788533613379'),
-                bookUrl: 'https://bibliotecadigital.puc-campinas.edu.br/services/e-books/Tolkien-Senhor-dos-Aneis.pdf'
+                bookUrl: 'https://estdaliteratura.files.wordpress.com/2017/05/li-2-o-senhor-dos-aneis-j-r-r-tolkien.pdf'
             }
         ],
         feminino: [
@@ -725,7 +736,7 @@
                 title: 'Hábitos Atômicos',
                 author: 'James Clear',
                 cover: OL('9788550807560'),
-                bookUrl: 'https://sites-files.us-east-1.linodeobjects.com/elivros.digital/2023/03/habitos-atomicos-by-james-clear-z-liborg.pdf'
+                bookUrl: 'https://www.osaberdigital.com.br/wp-content/uploads/2024/11/Habitos-Atomicos-James-Clear.pdf'
             },
             {
                 id: 306,
@@ -774,14 +785,14 @@
                 title: 'It - A Coisa',
                 author: 'Stephen King',
                 cover: OL('9788556510266'),
-                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2020/01/It-a-Coisa.pdf'
+                bookUrl: 'https://www.osaberdigital.com.br/wp-content/uploads/2024/11/Novembro-De-63-Stephen-King.pdf'
             },
             {
                 id: 313,
                 title: 'Sapiens',
                 author: 'Yuval Noah Harari',
                 cover: OL('9788535928099'),
-                bookUrl: 'https://reciclaleitores.com.br/wp-content/uploads/2019/03/Sapiens.pdf'
+                bookUrl: 'https://www.osaberdigital.com.br/wp-content/uploads/2024/11/Sapiens-Uma-Breve-Historia-Yuval-Noah-Harari.pdf'
             },
             {
                 id: 314,
@@ -910,7 +921,7 @@
                 className={`book-cover-img ${className}`}
                 src={src}
                 alt={title}
-                style={{ height }}
+                style={{ height, width: '100%', objectFit: 'cover', objectPosition: 'center top' }}
                 onError={() => setFailed(true)}
             />
         );
@@ -931,7 +942,7 @@
                     <div className="modal-divider" />
                     {book.bookUrl ? (
                         <a href={book.bookUrl} target="_blank" rel="noopener noreferrer" className="btn-access">
-                            ⬇️&nbsp; Baixe seu livro (PDF)
+                            📖&nbsp; Ler Livro Online (PDF)
                         </a>
                     ) : (
                         <div style={{textAlign:'center'}}>
@@ -1097,51 +1108,58 @@
         };
 
         return (
-            <div className="popup-overlay" onClick={onClose}>
-                <div className="popup-box quiz-box" onClick={e => e.stopPropagation()}>
-                    <button className="quiz-close" onClick={onClose}>✕</button>
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="modal-box quiz-modal" style={{maxWidth:500, textAlign:'left', padding:'2rem'}} onClick={e => e.stopPropagation()}>
+                    <button className="modal-close" onClick={onClose}>✕</button>
                     {!result ? (
                         <>
-                            <div className="quiz-icon">🎯</div>
-                            <div className="quiz-title">Qual livro é pra você?</div>
-                            <div className="quiz-subtitle">Responda {QUIZ_QUESTIONS.length} perguntas rápidas e descubra</div>
-                            <div className="quiz-progress">
+                            <div style={{display:'flex', alignItems:'center', gap:'0.75rem', marginBottom:'0.3rem'}}>
+                                <div style={{width:44, height:44, borderRadius:14, background:'linear-gradient(135deg,#667eea,#f093fb)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1.4rem', flexShrink:0}}>🎯</div>
+                                <div>
+                                    <div style={{fontFamily:"'Crimson Pro',serif", fontSize:'1.5rem', fontWeight:700, color:'var(--primary)', lineHeight:1.2}}>Qual livro é pra você?</div>
+                                    <div style={{color:'var(--text-light)', fontSize:'0.85rem'}}>Responda {QUIZ_QUESTIONS.length} perguntas rápidas</div>
+                                </div>
+                            </div>
+                            <div style={{display:'flex', gap:'0.3rem', margin:'1.2rem 0 0.4rem'}}>
                                 {QUIZ_QUESTIONS.map((_, i) => (
-                                    <div key={i} className={`quiz-progress-dot ${i <= step ? 'active' : ''}`} />
+                                    <div key={i} style={{flex:1, height:3, borderRadius:99, background: i <= step ? 'linear-gradient(90deg,#667eea,#f093fb)' : 'rgba(102,126,234,0.15)', transition:'background 0.4s'}} />
                                 ))}
                             </div>
-                            <div className="quiz-step-label">Pergunta {step + 1} de {QUIZ_QUESTIONS.length}</div>
-                            <div className="quiz-question">{QUIZ_QUESTIONS[step].q}</div>
-                            <div className="quiz-options">
+                            <div style={{fontSize:'0.72rem', fontWeight:600, color:'#aaa', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:'0.9rem'}}>Pergunta {step + 1} de {QUIZ_QUESTIONS.length}</div>
+                            <div style={{fontSize:'1.05rem', fontWeight:700, color:'var(--text)', marginBottom:'1rem', lineHeight:1.5}}>{QUIZ_QUESTIONS[step].q}</div>
+                            <div style={{display:'flex', flexDirection:'column', gap:'0.5rem'}}>
                                 {QUIZ_QUESTIONS[step].options.map((opt, i) => (
-                                    <button key={i} className="quiz-option" onClick={() => handleOption(opt.tags)}>
-                                        <span className="quiz-option-dot" />
+                                    <button key={i} onClick={() => handleOption(opt.tags)} style={{padding:'0.85rem 1.1rem', border:'1.5px solid #ede8ff', borderRadius:12, cursor:'pointer', fontSize:'0.93rem', fontWeight:500, background:'#faf9ff', textAlign:'left', color:'var(--text)', transition:'all 0.18s', fontFamily:'Inter,sans-serif'}}>
                                         {opt.text}
                                     </button>
                                 ))}
                             </div>
                         </>
                     ) : (
-                        <div className="quiz-result">
-                            <div className="quiz-result-trophy">🎉</div>
-                            <div className="quiz-result-title">Seus livros ideais são:</div>
-                            <div className="quiz-result-subtitle">Clique num livro para abrir e ler</div>
-                            <div className="quiz-result-books">
+                        <>
+                            <div style={{textAlign:'center', marginBottom:'1.2rem'}}>
+                                <div style={{fontSize:'2.8rem', marginBottom:'0.4rem'}}>🎉</div>
+                                <div style={{fontFamily:"'Crimson Pro',serif", fontSize:'1.5rem', fontWeight:700, color:'var(--primary)'}}>Seus livros ideais são:</div>
+                                <div style={{color:'var(--text-light)', fontSize:'0.85rem', marginTop:'0.2rem'}}>Clique num livro para acessar</div>
+                            </div>
+                            <div style={{display:'flex', flexDirection:'column', gap:'0.6rem', marginBottom:'1.2rem'}}>
                                 {result.map((book, i) => (
-                                    <div key={book.id} className="quiz-result-book" onClick={() => { onSelectBook(book); onClose(); }}>
-                                        <span className="quiz-result-book-rank">{['🥇','🥈','🥉'][i]}</span>
-                                        <img className="quiz-result-book-cover" src={COVERS[book.title] || book.cover} alt={book.title} onError={e => e.target.style.display='none'} />
-                                        <div className="quiz-result-book-info">
-                                            <div className="quiz-result-book-title">{book.title}</div>
-                                            <div className="quiz-result-book-author">{book.author}</div>
+                                    <div key={book.id} onClick={() => { onSelectBook(book); onClose(); }} style={{display:'flex', alignItems:'center', gap:'0.85rem', padding:'0.75rem 1rem', background:'linear-gradient(135deg,#f8f5ff,#fff5fe)', borderRadius:14, border:'1.5px solid #e8e0ff', cursor:'pointer', transition:'all 0.2s'}}>
+                                        <span style={{fontSize:'1.3rem', flexShrink:0}}>{['🥇','🥈','🥉'][i]}</span>
+                                        <img src={COVERS[book.title] || book.cover} alt={book.title} onError={e => e.target.style.display='none'} style={{width:40, height:56, objectFit:'cover', borderRadius:6, flexShrink:0, boxShadow:'0 3px 10px rgba(0,0,0,0.15)'}} />
+                                        <div style={{flex:1}}>
+                                            <div style={{fontWeight:700, fontSize:'0.93rem', color:'var(--text)'}}>{book.title}</div>
+                                            <div style={{fontSize:'0.8rem', color:'var(--text-light)'}}>{book.author}</div>
                                         </div>
-                                        <span className="quiz-result-book-arrow">›</span>
+                                        <span style={{color:'#b49ef5', fontSize:'1.1rem', fontWeight:700}}>›</span>
                                     </div>
                                 ))}
                             </div>
-                            <button className="quiz-btn-primary" onClick={onClose}>Ir para a biblioteca 📚</button>
-                            <button className="quiz-btn-secondary" onClick={() => { setStep(0); setScores({}); setResult(null); }}>Refazer o quiz 🔄</button>
-                        </div>
+                            <div style={{display:'flex', flexDirection:'column', gap:'0.5rem'}}>
+                                <button onClick={onClose} style={{width:'100%', padding:'0.88rem', background:'linear-gradient(135deg,#667eea,#764ba2)', color:'white', border:'none', borderRadius:14, fontSize:'0.95rem', fontWeight:700, cursor:'pointer', fontFamily:'Inter,sans-serif'}}>Ir para a biblioteca 📚</button>
+                                <button onClick={() => { setStep(0); setScores({}); setResult(null); }} style={{width:'100%', padding:'0.75rem', background:'transparent', border:'1.5px solid #e0d8ff', color:'#8878d8', borderRadius:14, fontSize:'0.88rem', fontWeight:600, cursor:'pointer', fontFamily:'Inter,sans-serif'}}>Refazer o quiz 🔄</button>
+                            </div>
+                        </>
                     )}
                 </div>
             </div>
@@ -1204,74 +1222,75 @@
 
     function AISummaryModal({ book, onClose }) {
         const [loading, setLoading] = useState(true);
-        const [data, setData] = useState(null);
+        const [data, setData]       = useState(null);
 
         useEffect(() => {
-            const timer = setTimeout(() => {
+            const t = setTimeout(() => {
                 setData(AI_SUMMARIES[book.title] || {
-                    resumo: 'Este é um livro incrível com uma história envolvente que vai prender sua atenção do início ao fim. Uma leitura altamente recomendada!',
-                    genero: 'Literatura', paginas: '—', dificuldade: '⭐⭐', humor: '📖 Envolvente', frase: '""'
+                    resumo: 'Um livro incrível com uma história envolvente que vai prender sua atenção do início ao fim!',
+                    genero: 'Literatura', paginas: '—', dificuldade: '⭐⭐', humor: '📖 Envolvente', frase: '"Uma boa leitura."'
                 });
                 setLoading(false);
-            }, 1800);
-            return () => clearTimeout(timer);
+            }, 1400);
+            return () => clearTimeout(t);
         }, []);
 
         const coverSrc = COVERS[book.title] || (book.cover && book.cover.startsWith('http') ? book.cover : null);
 
         return (
-            <div className="popup-overlay" onClick={onClose}>
-                <div className="popup-box ai-box" onClick={e => e.stopPropagation()}>
-                    <button className="ai-close" onClick={onClose}>✕</button>
-                    <div className="ai-inner">
-                        <div className="ai-header">
-                            {coverSrc
-                                ? <img className="ai-book-cover" src={coverSrc} alt={book.title} onError={e => e.target.style.display='none'} />
-                                : <div className="ai-book-cover-fallback">📚</div>
-                            }
-                            <div>
-                                <div className="ai-book-title">{book.title}</div>
-                                <div className="ai-book-author">{book.author}</div>
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="modal-box ai-modal" style={{maxWidth:480, textAlign:'left', padding:'2rem'}} onClick={e => e.stopPropagation()}>
+                    <button className="modal-close" onClick={onClose}>✕</button>
+
+                    {/* cabeçalho com capa menor */}
+                    <div style={{display:'flex', gap:'1rem', alignItems:'flex-start', marginBottom:'1.2rem'}}>
+                        {coverSrc && (
+                            <img
+                                src={coverSrc}
+                                alt={book.title}
+                                style={{width:72, height:100, objectFit:'cover', objectPosition:'center top', borderRadius:8, flexShrink:0, boxShadow:'0 6px 18px rgba(0,0,0,0.22)'}}
+                                onError={e => e.target.style.display='none'}
+                            />
+                        )}
+                        <div style={{flex:1}}>
+                            <div style={{fontFamily:"'Crimson Pro',serif", fontSize:'1.3rem', fontWeight:700, color:'var(--primary)', lineHeight:1.25, marginBottom:'0.25rem'}}>{book.title}</div>
+                            <div style={{color:'var(--text-light)', fontSize:'0.88rem', fontWeight:500}}>{book.author}</div>
+                            <span style={{display:'inline-flex', alignItems:'center', gap:'0.3rem', marginTop:'0.5rem', background:'linear-gradient(135deg,#f59e0b,#f97316)', color:'white', padding:'0.2rem 0.65rem', borderRadius:99, fontSize:'0.7rem', fontWeight:700, letterSpacing:'0.04em'}}>✨ RESUMO</span>
+                        </div>
+                    </div>
+
+                    <div style={{width:40, height:3, background:'linear-gradient(90deg,#f59e0b,#f97316)', borderRadius:2, marginBottom:'1.2rem'}} />
+
+                    {loading ? (
+                        <div style={{textAlign:'center', padding:'1.5rem 0'}}>
+                            <div style={{fontSize:'2.2rem', animation:'float 2s ease-in-out infinite', marginBottom:'0.75rem'}}>📖</div>
+                            <div style={{color:'var(--text-light)', fontSize:'0.9rem', marginBottom:'1rem'}}>Preparando o resumo...</div>
+                            <div style={{height:4, background:'rgba(245,158,11,0.15)', borderRadius:99, overflow:'hidden'}}>
+                                <div style={{height:'100%', background:'linear-gradient(90deg,#f59e0b,#f97316)', borderRadius:99, animation:'aiLoad 1.5s ease-in-out infinite'}} />
                             </div>
                         </div>
-                        <div className="ai-badge">✨ Resumo BiblioShare</div>
-                        {loading ? (
-                            <div className="ai-loading">
-                                <div className="ai-loading-icon">📖</div>
-                                <div className="ai-loading-text">Preparando o resumo...</div>
-                                <div className="ai-loading-bar"><div className="ai-loading-fill" /></div>
+                    ) : (
+                        <div>
+                            <div style={{marginBottom:'1rem'}}>
+                                <div style={{fontSize:'0.72rem', fontWeight:700, color:'#f97316', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:'0.4rem'}}>📖 Sobre o livro</div>
+                                <div style={{fontSize:'0.94rem', lineHeight:1.75, color:'var(--text)'}}>{data.resumo}</div>
                             </div>
-                        ) : (
-                            <div className="ai-content">
-                                <div className="ai-section">
-                                    <div className="ai-section-label">📖 Sobre o livro</div>
-                                    <div className="ai-resumo-text">{data.resumo}</div>
-                                </div>
-                                <div className="ai-stats-grid">
-                                    <div className="ai-stat">
-                                        <div className="ai-stat-label">🎭 Gênero</div>
-                                        <div className="ai-stat-value">{data.genero}</div>
+
+                            <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'0.6rem', margin:'1rem 0'}}>
+                                {[['🎭 Gênero', data.genero], ['📄 Páginas', data.paginas], ['🎯 Dificuldade', data.dificuldade], ['🌡️ Clima', data.humor]].map(([label, val]) => (
+                                    <div key={label} style={{background:'rgba(245,158,11,0.07)', border:'1.5px solid rgba(245,158,11,0.2)', borderRadius:12, padding:'0.7rem 0.85rem'}}>
+                                        <div style={{fontSize:'0.68rem', fontWeight:700, color:'#f97316', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:'0.2rem'}}>{label}</div>
+                                        <div style={{fontSize:'0.9rem', fontWeight:600, color:'var(--text)'}}>{val}</div>
                                     </div>
-                                    <div className="ai-stat">
-                                        <div className="ai-stat-label">📄 Páginas</div>
-                                        <div className="ai-stat-value">{data.paginas}</div>
-                                    </div>
-                                    <div className="ai-stat">
-                                        <div className="ai-stat-label">🎯 Dificuldade</div>
-                                        <div className="ai-stat-value">{data.dificuldade}</div>
-                                    </div>
-                                    <div className="ai-stat">
-                                        <div className="ai-stat-label">🌡️ Clima</div>
-                                        <div className="ai-stat-value">{data.humor}</div>
-                                    </div>
-                                </div>
-                                <div className="ai-section">
-                                    <div className="ai-section-label">💬 Frase marcante</div>
-                                    <div className="ai-quote">{data.frase}</div>
-                                </div>
+                                ))}
                             </div>
-                        )}
-                    </div>
+
+                            <div style={{background:'linear-gradient(135deg,rgba(245,158,11,0.06),rgba(249,115,22,0.04))', borderLeft:'3px solid #f59e0b', borderRadius:'0 12px 12px 0', padding:'0.9rem 1.1rem'}}>
+                                <div style={{fontSize:'0.72rem', fontWeight:700, color:'#f97316', textTransform:'uppercase', letterSpacing:'0.07em', marginBottom:'0.35rem'}}>💬 Frase marcante</div>
+                                <div style={{fontStyle:'italic', fontSize:'0.92rem', color:'var(--text)', lineHeight:1.65}}>{data.frase}</div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -1586,7 +1605,7 @@
                         const state = getBookState(book.id);
                         return (
                             <div key={book.id} className="book-card">
-                                <div style={{position:'relative'}}>
+                                <div style={{position:'relative', overflow:'hidden', height:380}}>
                                     <DynamicCover isbn={book.cover} title={book.title} author={book.author} height={380} />
                                     {book._extra && currentUser?.username?.toLowerCase() === 'yurigg' && (
                                         <button className="btn-delete-book" title="Excluir livro" onClick={async (e) => {
