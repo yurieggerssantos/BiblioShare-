@@ -68,6 +68,38 @@
         body.dark-mode .book-cover-fallback { background: #2a2a4a; }
         body.dark-mode footer { background: #0a0a15; }
 
+        /* ===== Botão "Ver resumo" (card) — estilo vidro/contorno, enche com degradê no hover ===== */
+        .btn-ai { position:relative; isolation:isolate; overflow:hidden; width:100%; padding:0.8rem 1rem; margin-top:0.55rem; display:flex; align-items:center; justify-content:center; gap:0.5rem; font-size:0.84rem; font-weight:700; letter-spacing:0.4px; cursor:pointer; color:#d63852; background:linear-gradient(135deg,rgba(233,69,96,0.07),rgba(240,147,251,0.13)); border:1.5px solid rgba(233,69,96,0.38); border-radius:50px; box-shadow:0 2px 10px rgba(233,69,96,0.10), inset 0 1px 0 rgba(255,255,255,0.8); transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, color 0.25s ease, border-color 0.25s ease; }
+        .btn-ai::after { content:''; position:absolute; inset:0; z-index:-1; border-radius:inherit; background:linear-gradient(135deg,#e94560,#f093fb); opacity:0; transition:opacity 0.3s ease; }
+        .btn-ai::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent); transition:left 0.55s ease; pointer-events:none; }
+        .btn-ai:hover { color:#fff; border-color:#ee6f9f; transform:translateY(-3px); box-shadow:0 10px 26px rgba(233,69,96,0.40); }
+        .btn-ai:hover::after { opacity:1; }
+        .btn-ai:hover::before { left:150%; }
+        .btn-ai:active { transform:translateY(0) scale(0.97); box-shadow:0 3px 10px rgba(233,69,96,0.30); }
+        .btn-ai:focus-visible { outline:3px solid rgba(233,69,96,0.45); outline-offset:3px; }
+        body.dark-mode .btn-ai { color:#f6b9ff; background:linear-gradient(135deg,rgba(233,69,96,0.14),rgba(217,116,232,0.16)); border-color:rgba(217,116,232,0.5); box-shadow:0 0 0 rgba(217,116,232,0), inset 0 1px 0 rgba(255,255,255,0.07); }
+        body.dark-mode .btn-ai::after { background:linear-gradient(135deg,#c73652,#d974e8); }
+        body.dark-mode .btn-ai:hover { color:#fff; border-color:#d05b9d; box-shadow:0 0 22px rgba(217,116,232,0.55), 0 10px 26px rgba(199,54,82,0.45); }
+        body.dark-mode .btn-ai:focus-visible { outline-color:rgba(217,116,232,0.6); }
+
+        /* ===== Botão "Descobrir meu livro ideal" (hero) ===== */
+        /* Modo claro: degradê vivo que desliza + brilho */
+        .btn-quiz { position:relative; isolation:isolate; overflow:hidden; display:inline-flex; align-items:center; gap:0.7rem; margin-top:1.4rem; padding:1.1rem 2.8rem; color:#fff; font-size:1.02rem; font-weight:800; letter-spacing:0.4px; cursor:pointer; border:1px solid rgba(255,255,255,0.35); border-radius:50px; background:linear-gradient(120deg,#5b6cf0,#7b4fd0,#e45fd0,#f093fb,#5b6cf0); background-size:300% 100%; text-shadow:0 1px 2px rgba(60,30,120,0.35); box-shadow:0 8px 30px rgba(102,126,234,0.5), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -3px 8px rgba(80,40,160,0.25); transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease; animation:quizShift 8s ease-in-out infinite, pulseQuiz 3s ease-in-out infinite; }
+        .btn-quiz::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent); transition:left 0.6s ease; pointer-events:none; }
+        .btn-quiz:hover::before { left:150%; }
+        @keyframes quizShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+        @keyframes pulseQuiz { 0%,100%{box-shadow:0 8px 30px rgba(102,126,234,0.5), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -3px 8px rgba(80,40,160,0.25)} 50%{box-shadow:0 12px 38px rgba(102,126,234,0.72), 0 0 0 7px rgba(102,126,234,0.12), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -3px 8px rgba(80,40,160,0.25)} }
+        .btn-quiz:hover { transform:translateY(-4px) scale(1.05); box-shadow:0 18px 46px rgba(102,126,234,0.68), inset 0 1px 0 rgba(255,255,255,0.4); animation:quizShift 3s ease-in-out infinite; }
+        .btn-quiz:active { transform:translateY(-1px) scale(0.98); }
+        .btn-quiz:focus-visible { outline:3px solid rgba(124,111,224,0.6); outline-offset:4px; }
+        /* Modo escuro: superfície escura com borda neon em degradê e brilho */
+        body.dark-mode .btn-quiz { color:#efeaff; text-shadow:0 0 14px rgba(167,139,250,0.6); border:2px solid transparent; background:linear-gradient(#15122b,#1e1745) padding-box, linear-gradient(120deg,#7c8cff,#c26bff,#ff8ad8,#7c8cff) border-box; background-size:100% 100%, 300% 100%; box-shadow:0 0 26px rgba(124,111,224,0.45), inset 0 0 18px rgba(124,111,224,0.18); animation:quizShift 6s ease-in-out infinite, pulseQuizDark 3s ease-in-out infinite; }
+        body.dark-mode .btn-quiz::before { background:linear-gradient(90deg,transparent,rgba(196,181,253,0.22),transparent); }
+        @keyframes pulseQuizDark { 0%,100%{box-shadow:0 0 22px rgba(124,111,224,0.40), inset 0 0 16px rgba(124,111,224,0.16)} 50%{box-shadow:0 0 38px rgba(194,107,255,0.62), 0 0 0 6px rgba(124,111,224,0.10), inset 0 0 22px rgba(194,107,255,0.24)} }
+        body.dark-mode .btn-quiz:hover { color:#fff; background:linear-gradient(135deg,#5b4fe0,#9b4fe0,#e064c8) padding-box, linear-gradient(120deg,#7c8cff,#c26bff,#ff8ad8,#7c8cff) border-box; background-size:100% 100%, 300% 100%; box-shadow:0 0 44px rgba(194,107,255,0.7), 0 16px 40px rgba(91,79,224,0.5); animation:quizShift 3s ease-in-out infinite; }
+        body.dark-mode .btn-quiz:focus-visible { outline-color:rgba(194,107,255,0.7); }
+        @media (prefers-reduced-motion: reduce) { .btn-quiz, body.dark-mode .btn-quiz, .btn-quiz:hover, body.dark-mode .btn-quiz:hover { animation:none; } }
+
         .dark-toggle {
 
         /* ===== POPUP BASE — mesmo estilo do modal de empréstimo ===== */
@@ -158,22 +190,6 @@
         .ai-quote { background:linear-gradient(135deg,#f8f5ff,#fef5ff); border-left:3px solid #9b8eff; padding:1.1rem 1.3rem; border-radius:0 16px 16px 0; font-style:italic; font-size:0.94rem; color:#4a3f7e; line-height:1.7; }
         body.dark-mode .ai-quote { color:#c4b5fd; background:linear-gradient(135deg,#1c1838,#1f1535); border-left-color:#7c6fe0; }
 
-        /* Botão IA no card — rosa-magenta, combinando com o site */
-        .btn-ai { width:100%; padding:0.82rem 1rem; background:linear-gradient(135deg,#e94560,#f093fb); border:none; border-radius:50px; color:white; font-size:0.84rem; font-weight:700; cursor:pointer; transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1); margin-top:0.55rem; display:flex; align-items:center; justify-content:center; gap:0.5rem; letter-spacing:0.4px; box-shadow:0 4px 18px rgba(233,69,96,0.38); position:relative; overflow:hidden; }
-        .btn-ai::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent); transition:left 0.5s ease; }
-        .btn-ai:hover::before { left:150%; }
-        .btn-ai:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 10px 30px rgba(233,69,96,0.52); }
-        .btn-ai:active { transform:translateY(0) scale(0.97); }
-        body.dark-mode .btn-ai { background:linear-gradient(135deg,#c73652,#d974e8); box-shadow:0 4px 18px rgba(199,54,82,0.45); }
-        body.dark-mode .btn-ai:hover { box-shadow:0 10px 30px rgba(199,54,82,0.65); }
-
-        /* Botão quiz no hero */
-        .btn-quiz { display:inline-flex; align-items:center; gap:0.65rem; margin-top:1.4rem; padding:1.05rem 2.6rem; background:linear-gradient(135deg,#667eea,#764ba2,#f093fb); background-size:200% 200%; color:white; border:none; border-radius:50px; font-size:1rem; font-weight:700; cursor:pointer; transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1); box-shadow:0 6px 28px rgba(102,126,234,0.5); letter-spacing:0.4px; animation:pulseQuiz 3s ease-in-out infinite; position:relative; overflow:hidden; }
-        .btn-quiz::before { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.2),transparent); transition:left 0.6s ease; }
-        .btn-quiz:hover::before { left:150%; }
-        @keyframes pulseQuiz { 0%,100%{box-shadow:0 6px 28px rgba(102,126,234,0.5)} 50%{box-shadow:0 10px 36px rgba(102,126,234,0.7), 0 0 0 6px rgba(102,126,234,0.1)} }
-        .btn-quiz:hover { background-position:right center; transform:translateY(-4px) scale(1.05); box-shadow:0 16px 44px rgba(102,126,234,0.65); animation:none; }
-        .btn-quiz:active { transform:translateY(-1px) scale(0.98); }
 
             background: none; border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50px; padding: 0.4rem 0.9rem;
