@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval' blob:; connect-src * data: blob:; img-src * data: blob:; style-src * 'unsafe-inline'; font-src * data:;">
     <title>BiblioShare - Biblioteca Virtual Completa</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-180.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="BiblioShare">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -381,11 +389,26 @@
 
     firebase.initializeApp(firebaseConfig);
     const _db = firebase.firestore();
+    // Celulares/redes móveis, VPN, DNS privado e navegadores embutidos costumam bloquear
+    // o streaming do Firestore e dão "Failed to fetch". Long polling funciona em qualquer rede.
+    try {
+        _db.settings({ experimentalForceLongPolling: true, useFetchStreams: false, merge: true });
+    } catch (e) { console.warn('Firestore settings:', e); }
 
     window.FBDB = {
 
         async getAll(collection) {
-            const snap = await _db.collection(collection).get();
+            let snap, lastErr;
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    snap = await _db.collection(collection).get();
+                    break;
+                } catch (e) {
+                    lastErr = e;
+                    await new Promise(function(r) { setTimeout(r, 700 * (attempt + 1)); });
+                }
+            }
+            if (!snap) throw lastErr;
             return snap.docs.map(function(d) {
                 const obj = d.data();
                 obj._docId = d.id;
@@ -562,7 +585,7 @@
                 title: 'O Pequeno Príncipe',
                 author: 'Antoine de Saint-Exupéry',
                 cover: OL('9788595081512'),
-                bookUrl: 'https://bibliotecadigital.aemrt.pt/download/785/O%20Pequeno%20Principe%20-%20Antoine%20de%20Saint-Exupery.pdf'
+                bookUrl: 'https://www.sesirs.org.br/sites/default/files/paragraph--files/o_pequeno_principe_-_antoine_de_saint-exupery_1.pdf'
             },
             {
                 id: 102,
@@ -1514,7 +1537,6 @@
         const startRealtime = () => {
             if (unsubRef.current) unsubRef.current();
             if (unsubBooksRef.current) unsubBooksRef.current();
-            unsubRef.current = DB.listenAllBorrowed(map => setGlobalBorrowed(map));
             unsubBooksRef.current = DB.listenBooks(livros => setExtraBooks(livros));
         };
 
@@ -1543,6 +1565,10 @@
             };
         }, []);
 
+        const netMsg = (err) => /failed to fetch|network|unavailable|offline|load failed/i.test((err && (err.message || err.code)) || '')
+            ? '🌐 Não consegui conectar ao servidor. Tente trocar entre Wi-Fi e dados móveis, desligue VPN/DNS privado/economia de dados e tente de novo.'
+            : '🌐 Erro de conexão: ' + ((err && err.message) || 'verifique sua internet.');
+
         const withTimeout = (promise, ms = 20000) =>
             Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 
@@ -1558,7 +1584,7 @@
                     if (err.message === 'timeout') {
                         setError('⏱️ Servidor demorou muito. Tente novamente.');
                     } else {
-                        setError('🌐 Erro de conexão: ' + (err.message || 'verifique sua internet.'));
+                        setError(netMsg(err));
                     }
                     setIsSubmitting(false); return;
                 }
@@ -1591,7 +1617,7 @@
                 try {
                     existingUser = await withTimeout(DB.getUser(username.trim()));
                 } catch(err) {
-                    setError('🌐 Erro de conexão ao verificar usuário: ' + (err.message || 'tente novamente.'));
+                    setError(netMsg(err));
                     setIsSubmitting(false); return;
                 }
                 if (existingUser) { setError('❌ Este usuário já existe!'); setIsSubmitting(false); return; }
@@ -1600,7 +1626,7 @@
                 try {
                     emailUsed = await withTimeout(DB.emailExists(email.trim()));
                 } catch(err) {
-                    setError('🌐 Erro de conexão ao verificar email: ' + (err.message || 'tente novamente.'));
+                    setError(netMsg(err));
                     setIsSubmitting(false); return;
                 }
                 if (emailUsed) { setError('❌ Este email já está cadastrado!'); setIsSubmitting(false); return; }
@@ -1629,25 +1655,6 @@
             setUsername(''); setPassword(''); setAppState('login');
         };
 
-        const handleBorrow = async (book) => {
-            const updated = { ...myBorrowed, [book.id]: true };
-            setMyBorrowed(updated);
-            if (currentUser?.id) { try { await DB.saveBorrowed(currentUser.id, updated); } catch {} }
-            setModalBook(book);
-        };
-
-        const handleReturn = async (bookId) => {
-            const updated = { ...myBorrowed };
-            delete updated[bookId];
-            setMyBorrowed(updated);
-            if (currentUser?.id) { try { await DB.saveBorrowed(currentUser.id, updated); } catch {} }
-        };
-
-        const getBookState = (bookId) => {
-            if (myBorrowed[bookId]) return 'mine';
-            return 'available';
-        };
-
         const renderCategory = (key, title, subtitle, books) => (
             <div className="category-section" key={key}>
                 <div className="category-header">
@@ -1656,7 +1663,6 @@
                 </div>
                 <div className="books-grid">
                     {books.map(book => {
-                        const state = getBookState(book.id);
                         return (
                             <div key={book.id} className="book-card">
                                 <div style={{position:'relative', overflow:'hidden', height:380}}>
@@ -1677,26 +1683,8 @@
                                 <div className="book-info">
                                     <h3 className="book-title">{book.title}</h3>
                                     <p className="book-author">{book.author}</p>
-                                    {state === 'available' && (
-                                        <div className="book-status status-available">
-                                            <span className="status-dot status-dot-green"></span>Disponível
-                                        </div>
-                                    )}
-                                    {state === 'mine' && (
-                                        <div className="book-status status-mine">
-                                            <span className="status-dot status-dot-purple"></span>Emprestado por mim
-                                        </div>
-                                    )}
                                     <div className="book-actions">
-                                        {state === 'mine' && (
-                                            <>
-                                                <button className="btn-read" onClick={() => setModalBook(book)}>📖 Ler Livro</button>
-                                                <button className="btn-return" onClick={() => handleReturn(book.id)}>↩️ Devolver</button>
-                                            </>
-                                        )}
-                                        {state === 'available' && (
-                                            <button className="btn-borrow" onClick={() => handleBorrow(book)}>📚 Emprestar</button>
-                                        )}
+                                        <button className="btn-read" onClick={() => setModalBook(book)}>📖 Ler Livro</button>
                                         <button className="btn-ai" onClick={() => setAiBook(book)}>✨ Ver resumo</button>
                                     </div>
                                 </div>
@@ -1796,6 +1784,44 @@
     }
 
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+<script>
+// ===== PWA: service worker + botão "Instalar app" =====
+(function () {
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('Service worker:', e); });
+        });
+    }
+
+    var deferred = null, box = null;
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    function dismissed() { try { return localStorage.getItem('biblioshare-install-dismissed') === '1'; } catch (e) { return false; } }
+    function hide() { if (box) { box.remove(); box = null; } }
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        if (isStandalone || dismissed()) return;
+        deferred = e;
+        box = document.createElement('div');
+        box.setAttribute('style', 'position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:900;display:flex;align-items:center;gap:4px;padding:4px;border-radius:50px;background:linear-gradient(135deg,#667eea,#764ba2);box-shadow:0 8px 24px rgba(102,126,234,0.45);font-family:Inter,system-ui,sans-serif;');
+        var go = document.createElement('button');
+        go.textContent = '\uD83D\uDCF2 Instalar app';
+        go.setAttribute('style', 'border:0;background:transparent;color:#fff;font-weight:700;font-size:0.9rem;padding:0.7rem 1rem 0.7rem 1.1rem;cursor:pointer;');
+        var x = document.createElement('button');
+        x.textContent = '\u2715'; x.setAttribute('aria-label', 'Fechar');
+        x.setAttribute('style', 'border:0;background:rgba(255,255,255,0.18);color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;margin-right:4px;');
+        go.onclick = function () {
+            if (!deferred) return;
+            deferred.prompt();
+            deferred.userChoice.then(function () { deferred = null; hide(); });
+        };
+        x.onclick = function () { try { localStorage.setItem('biblioshare-install-dismissed', '1'); } catch (e) {} hide(); };
+        box.appendChild(go); box.appendChild(x);
+        document.body.appendChild(box);
+    });
+    window.addEventListener('appinstalled', hide);
+})();
 </script>
 </body>
 </html>
