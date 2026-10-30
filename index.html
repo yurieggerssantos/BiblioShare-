@@ -109,6 +109,16 @@
         body.dark-mode .btn-quiz:focus-visible { outline-color:rgba(194,107,255,0.7); }
         @media (prefers-reduced-motion: reduce) { .btn-quiz, body.dark-mode .btn-quiz, .btn-quiz:hover, body.dark-mode .btn-quiz:hover { animation:none; } }
 
+        /* ===== Botão "Continuar com o Google" ===== */
+        .or-divider { display:flex; align-items:center; gap:0.8rem; margin:1.4rem 0 0.2rem; color:var(--text-light); font-size:0.85rem; font-weight:600; }
+        .or-divider::before, .or-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+        .btn-google { display:flex; align-items:center; justify-content:center; gap:0.75rem; width:100%; margin-top:0.9rem; padding:0.95rem 1.2rem; background:#fff; color:#3c4043; border:1.5px solid #dadce0; border-radius:12px; font-family:'Inter',sans-serif; font-size:1rem; font-weight:600; cursor:pointer; box-shadow:0 1px 3px rgba(60,64,67,0.15); transition:box-shadow 0.25s ease, transform 0.25s ease, background 0.25s ease, border-color 0.25s ease; }
+        .btn-google:hover:not(:disabled) { background:#f8f9fa; border-color:#c6c9cc; box-shadow:0 6px 18px rgba(60,64,67,0.22); transform:translateY(-2px); }
+        .btn-google:active:not(:disabled) { transform:translateY(0) scale(0.98); }
+        .btn-google:disabled { opacity:0.7; cursor:not-allowed; }
+        .btn-google svg { flex-shrink:0; }
+        body.dark-mode .btn-google { box-shadow:0 1px 3px rgba(0,0,0,0.5); }
+
         .dark-toggle {
 
         /* ===== POPUP BASE — mesmo estilo do modal de empréstimo ===== */
@@ -1600,6 +1610,8 @@
             if (code === 'auth/weak-password') return '❌ Senha muito fraca. Use pelo menos 6 caracteres.';
             if (code === 'auth/too-many-requests') return '⏳ Muitas tentativas. Espere alguns minutos e tente de novo.';
             if (code === 'auth/network-request-failed') return netMsg(err);
+            if (code === 'auth/account-exists-with-different-credential') return '❌ Já existe uma conta com esse email usando senha. Entre com usuário e senha.';
+            if (code === 'auth/unauthorized-domain') return '⚠️ Este site ainda não foi autorizado no Firebase (Authentication → Configurações → Domínios autorizados).';
             if (code === 'auth/operation-not-allowed') return '⚠️ O cadastro por email ainda não foi ativado no Firebase (Authentication → Método de login → E-mail/senha).';
             return netMsg(err);
         };
@@ -1624,6 +1636,7 @@
                     setIsSubmitting(false); return;
                 }
                 if (!user) { setError('❌ Usuário não encontrado! Cadastre-se primeiro.'); setIsSubmitting(false); return; }
+                if (!user.uid && !user.password) { setError('🔑 Esta conta foi criada com o Google. Use o botão "Continuar com o Google".'); setIsSubmitting(false); return; }
                 if (user.uid) {
                     // Conta nova: senha e confirmação de email ficam no Firebase Authentication
                     let cred;
@@ -1717,6 +1730,100 @@
             } finally { setIsSubmitting(false); }
         };
 
+        const makeUsername = (fu, users) => {
+            let base = ((fu.email || '').split('@')[0] || fu.displayName || 'leitor').toLowerCase().replace(/[^a-z0-9._-]/g, '');
+            if (base.length < 3) base = (base + 'leitor').slice(0, 12);
+            const taken = new Set(users.map(u => (u.username || '').toLowerCase()));
+            taken.add('yurigg'); // nome reservado do administrador
+            let uname = base, i = 2;
+            while (taken.has(uname)) { uname = base + i; i++; }
+            return uname;
+        };
+
+        // Termina o login depois que o Google confirmou a pessoa
+        const finishGoogle = async (fu) => {
+            const users = await withTimeout(window.FBDB.getAll('users'));
+            const email = (fu.email || '').toLowerCase();
+            let user = users.find(u => u.googleUid === fu.uid || u.uid === fu.uid)
+                    || users.find(u => (u.email || '').toLowerCase() === email);
+            if (user && user.googleUid !== fu.uid && user.uid !== fu.uid) {
+                // já existia uma conta com esse email: vincula ao Google
+                await window.FBDB.update('users', user._docId, { googleUid: fu.uid });
+                user.googleUid = fu.uid;
+            }
+            if (!user) {
+                const data = {
+                    name: fu.displayName || email.split('@')[0], email: email,
+                    username: makeUsername(fu, users), googleUid: fu.uid,
+                    borrowedBooks: {}, createdAt: Date.now()
+                };
+                const id = await window.FBDB.add('users', data);
+                user = Object.assign({}, data, { _docId: id, id: id });
+            }
+            try { await window.FBAUTH.signOut(); } catch(_) {}
+            const session = { id: user._docId || user.id, username: user.username, name: user.name };
+            localStorage.setItem('biblioshare-session', JSON.stringify(session));
+            setCurrentUser(session);
+            setMyBorrowed(user.borrowedBooks || {});
+            setAppState('app');
+            startRealtime();
+        };
+
+        const handleGoogle = async () => {
+            setError(''); setSuccess(''); setNeedVerify(false); setIsSubmitting(true);
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                provider.setCustomParameters({ prompt: 'select_account' });
+                let result;
+                try {
+                    result = await window.FBAUTH.signInWithPopup(provider);
+                } catch (err) {
+                    if (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment') {
+                        // popup bloqueado (ex.: app instalado no iPhone): usa a tela inteira
+                        try { sessionStorage.setItem('biblioshare-google-redirect', '1'); } catch(_) {}
+                        await window.FBAUTH.signInWithRedirect(provider);
+                        return;
+                    }
+                    throw err;
+                }
+                await finishGoogle(result.user);
+            } catch (err) {
+                if (err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request')) {
+                    setError('Login com o Google cancelado.');
+                } else {
+                    setError(authMsg(err));
+                }
+            } finally { setIsSubmitting(false); }
+        };
+
+        // Volta do login por redirecionamento (só roda se a pessoa saiu para o Google)
+        useEffect(() => {
+            let pending = false;
+            try { pending = sessionStorage.getItem('biblioshare-google-redirect') === '1'; } catch(_) {}
+            if (!pending) return;
+            try { sessionStorage.removeItem('biblioshare-google-redirect'); } catch(_) {}
+            setIsSubmitting(true);
+            window.FBAUTH.getRedirectResult()
+                .then(res => { if (res && res.user) return finishGoogle(res.user); })
+                .catch(err => setError(authMsg(err)))
+                .finally(() => setIsSubmitting(false));
+        }, []);
+
+        const googleButton = (
+            <>
+                <div className="or-divider">ou</div>
+                <button type="button" className="btn-google" onClick={handleGoogle} disabled={isSubmitting}>
+                    <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                    {isSubmitting ? 'Aguarde...' : 'Continuar com o Google'}
+                </button>
+            </>
+        );
+
         const handleLogout = () => {
             if (unsubRef.current) unsubRef.current();
             if (unsubBooksRef.current) unsubBooksRef.current();
@@ -1791,6 +1898,7 @@
                             <div className="form-group"><label className="form-label">👤 Usuário</label><input type="text" className="form-input" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Digite seu usuário" /></div>
                             <div className="form-group"><label className="form-label">🔒 Senha</label><input type="password" className="form-input" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Digite sua senha" /></div>
                             <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? '⏳ Entrando...' : 'Entrar'}</button>
+                            {googleButton}
                             <div className="toggle-form">Não tem conta? <button type="button" onClick={()=>{setShowRegister(true);setError('');setSuccess('');}}>Cadastre-se agora</button></div>
                         </form>
                     ) : (
@@ -1801,6 +1909,7 @@
                             <div className="form-group"><label className="form-label">🔒 Senha</label><input type="password" className="form-input" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" /><div className="form-hint">Mínimo 6 caracteres</div></div>
                             <div className="form-group"><label className="form-label">🔒 Confirmar Senha</label><input type="password" className="form-input" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} placeholder="Digite a senha novamente" /></div>
                             <button type="submit" className="btn btn-primary" disabled={isSubmitting}>{isSubmitting ? '⏳ Criando conta...' : '🚀 Criar Conta'}</button>
+                            {googleButton}
                             <div className="toggle-form">Já tem conta? <button type="button" onClick={()=>{setShowRegister(false);setError('');setSuccess('');}}>Fazer login</button></div>
                         </form>
                     )}
