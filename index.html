@@ -21,6 +21,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -389,6 +390,8 @@
 
     firebase.initializeApp(firebaseConfig);
     const _db = firebase.firestore();
+    window.FBAUTH = firebase.auth();
+    window.FBAUTH.languageCode = 'pt-BR'; // email de confirmação em português
     // Celulares/redes móveis, VPN, DNS privado e navegadores embutidos costumam bloquear
     // o streaming do Firestore e dão "Failed to fetch". Long polling funciona em qualquer rede.
     try {
@@ -946,6 +949,24 @@
             const payload = Object.assign({}, data, { borrowedBooks: {} });
             const docId = await window.FBDB.add('users', payload);
             return docId;
+        },
+
+        // Cria a conta no Firebase Authentication e envia o email de confirmação.
+        // A senha fica só no Authentication (nunca no banco de dados).
+        async registerWithEmail(data) {
+            const cred = await window.FBAUTH.createUserWithEmailAndPassword(data.email, data.password);
+            try {
+                await cred.user.sendEmailVerification();
+                await window.FBDB.add('users', {
+                    name: data.name, email: data.email, username: data.username,
+                    uid: cred.user.uid, borrowedBooks: {}, createdAt: Date.now()
+                });
+            } catch (e) {
+                // desfaz a conta se algo falhar, para a pessoa poder tentar de novo
+                try { await cred.user.delete(); } catch (_) {}
+                throw e;
+            }
+            try { await window.FBAUTH.signOut(); } catch (_) {}
         },
 
         // Salva livros emprestados do usuário
@@ -1514,6 +1535,7 @@
         const [appState, setAppState]         = useState('loading');
         const [currentUser, setCurrentUser]   = useState(null);
         const [showRegister, setShowRegister] = useState(false);
+        const [needVerify, setNeedVerify]   = useState(false);
         const [username, setUsername]         = useState('');
         const [password, setPassword]         = useState('');
         const [name, setName]                 = useState('');
@@ -1569,11 +1591,24 @@
             ? '🌐 Não consegui conectar ao servidor. Tente trocar entre Wi-Fi e dados móveis, desligue VPN/DNS privado/economia de dados e tente de novo.'
             : '🌐 Erro de conexão: ' + ((err && err.message) || 'verifique sua internet.');
 
+        const authMsg = (err) => {
+            const code = (err && err.code) || '';
+            if (err && err.message === 'timeout') return '⏱️ Servidor demorou muito. Tente novamente.';
+            if (code === 'auth/wrong-password' || code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials') return '❌ Senha incorreta!';
+            if (code === 'auth/email-already-in-use') return '❌ Este email já está cadastrado!';
+            if (code === 'auth/invalid-email') return '❌ Email inválido!';
+            if (code === 'auth/weak-password') return '❌ Senha muito fraca. Use pelo menos 6 caracteres.';
+            if (code === 'auth/too-many-requests') return '⏳ Muitas tentativas. Espere alguns minutos e tente de novo.';
+            if (code === 'auth/network-request-failed') return netMsg(err);
+            if (code === 'auth/operation-not-allowed') return '⚠️ O cadastro por email ainda não foi ativado no Firebase (Authentication → Método de login → E-mail/senha).';
+            return netMsg(err);
+        };
+
         const withTimeout = (promise, ms = 20000) =>
             Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
 
         const handleLogin = async (e) => {
-            e.preventDefault(); setError(''); setSuccess('');
+            e.preventDefault(); setError(''); setSuccess(''); setNeedVerify(false);
             if (!username.trim() || !password) { setError('❌ Preencha usuário e senha!'); return; }
             setIsSubmitting(true);
             try {
@@ -1589,7 +1624,22 @@
                     setIsSubmitting(false); return;
                 }
                 if (!user) { setError('❌ Usuário não encontrado! Cadastre-se primeiro.'); setIsSubmitting(false); return; }
-                if (user.password !== password) { setError('❌ Senha incorreta!'); setIsSubmitting(false); return; }
+                if (user.uid) {
+                    // Conta nova: senha e confirmação de email ficam no Firebase Authentication
+                    let cred;
+                    try {
+                        cred = await withTimeout(window.FBAUTH.signInWithEmailAndPassword(user.email, password));
+                    } catch(err) {
+                        setError(authMsg(err)); setIsSubmitting(false); return;
+                    }
+                    const verified = cred.user.emailVerified;
+                    try { await window.FBAUTH.signOut(); } catch(_) {}
+                    if (!verified) {
+                        setNeedVerify(true);
+                        setError('📧 Seu email ainda não foi confirmado. Abra o link que enviamos para ' + user.email + ' (olhe também a caixa de spam).');
+                        setIsSubmitting(false); return;
+                    }
+                } else if (user.password !== password) { setError('❌ Senha incorreta!'); setIsSubmitting(false); return; }
                 const session = { id: user._docId || user.id, username: user.username, name: user.name };
                 localStorage.setItem('biblioshare-session', JSON.stringify(session));
                 setCurrentUser(session);
@@ -1607,7 +1657,7 @@
             if (!name.trim() || !email.trim() || !username.trim() || !password || !confirmPassword) {
                 setError('❌ Preencha todos os campos!'); return;
             }
-            if (!email.includes('@') || !email.includes('.')) { setError('❌ Email inválido!'); return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) { setError('❌ Email inválido!'); return; }
             if (username.trim().length < 3) { setError('❌ Usuário deve ter pelo menos 3 caracteres!'); return; }
             if (password.length < 6) { setError('❌ Senha deve ter no mínimo 6 caracteres!'); return; }
             if (password !== confirmPassword) { setError('❌ As senhas não coincidem!'); return; }
@@ -1631,20 +1681,40 @@
                 }
                 if (emailUsed) { setError('❌ Este email já está cadastrado!'); setIsSubmitting(false); return; }
 
+                const cleanEmail = email.trim().toLowerCase();
                 try {
-                    await withTimeout(DB.createUser({ name: name.trim(), email: email.trim().toLowerCase(), username: username.trim(), password }));
+                    await withTimeout(DB.registerWithEmail({ name: name.trim(), email: cleanEmail, username: username.trim(), password }), 30000);
                 } catch(err) {
-                    setError('🌐 Erro ao criar conta: ' + (err.message || 'tente novamente.'));
+                    setError(authMsg(err));
                     setIsSubmitting(false); return;
                 }
 
-                setSuccess('✅ Conta criada com sucesso! Faça login.');
+                setSuccess('📧 Conta criada! Enviamos um link de confirmação para ' + cleanEmail + '. Confirme o email (olhe também a caixa de spam) e depois faça login.');
                 setShowRegister(false);
                 setName(''); setEmail(''); setUsername(''); setPassword(''); setConfirmPassword('');
             } catch(err) {
                 setError('❌ Erro inesperado: ' + (err.message || 'tente novamente.'));
             }
             finally { setIsSubmitting(false); }
+        };
+
+        const handleResend = async () => {
+            setError(''); setSuccess(''); setIsSubmitting(true);
+            try {
+                const user = await withTimeout(DB.getUser(username.trim()));
+                if (!user || !user.uid) { setError('❌ Usuário não encontrado.'); return; }
+                const cred = await withTimeout(window.FBAUTH.signInWithEmailAndPassword(user.email, password));
+                if (cred.user.emailVerified) {
+                    setNeedVerify(false);
+                    setSuccess('✅ Seu email já está confirmado! Pode entrar.');
+                } else {
+                    await cred.user.sendEmailVerification();
+                    setSuccess('📧 Reenviamos o link de confirmação para ' + user.email + '. Olhe também a caixa de spam.');
+                }
+                try { await window.FBAUTH.signOut(); } catch(_) {}
+            } catch(err) {
+                setError(authMsg(err));
+            } finally { setIsSubmitting(false); }
         };
 
         const handleLogout = () => {
@@ -1713,6 +1783,9 @@
 
                     {error && <div className="error-message">{error}</div>}
                     {success && <div className="success-message">{success}</div>}
+                    {needVerify && !showRegister && (
+                        <div className="toggle-form" style={{marginBottom:'1rem'}}><button type="button" onClick={handleResend} disabled={isSubmitting}>📨 Reenviar email de confirmação</button></div>
+                    )}
                     {!showRegister ? (
                         <form onSubmit={handleLogin}>
                             <div className="form-group"><label className="form-label">👤 Usuário</label><input type="text" className="form-input" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Digite seu usuário" /></div>
